@@ -37,10 +37,7 @@ secret=$(cat "$path/secret")
 hash=$(echo -n "$emailFrom$secret" | sha256sum | cut -b 1-10)
 emailToLocal="nl-confirm+${hash}@club1.fr"
 
-
-# charge un mot doux depuis le fichier
-signature=$(shuf -n 1 "$path/signatures")
-signature="\n\n$signature\n\nhttps://club1.fr"
+. "$path/pick_signature.sh"
 
 if test $emailTo = $emailToLocal
 then

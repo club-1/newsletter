@@ -21,10 +21,7 @@ emails=$(cat "$path/emails")
 # indique si l'adresse email reçue existe déjà dans le fichiers des adresses
 exist=$(echo "$emails" | grep -c -m 1 "$emailFrom")
 
-
-# charge un mot doux depuis le fichier
-signature=$(shuf -n 1 "$path/signatures")
-signature="\n\n$signature\n\nhttps://club1.fr"
+. "$path/pick_signature.sh"
 
 # Si elle n'existe pas déjà, on l'ajoute. Sinon on envoie un email indiquant qu'elle y est déjà
 if test $exist = 1
