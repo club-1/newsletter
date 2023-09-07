@@ -35,5 +35,6 @@ Edit aliases [doc](https://club1.fr/docs/fr/outils/aliases.html#modifier-les-ali
 
 ### send newsletter
 
-    newsletter.sh "content of the newsletter"
+    cat NL_FILE | newsletter.sh NL_NUMBER
 
+Where `NL_FILE` is the file containing the newsletter text and `NL_NUMBER` is the newsletter number.
