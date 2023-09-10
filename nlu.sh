@@ -29,8 +29,9 @@ if test $exist = 1
 then
     tmpemails=$(sed "/^$emailFrom\$/d" "$emails")
     echo "$tmpemails" > "$emails"
-
-    echo "Votre email $emailFrom a bien ete retire de la newsletter CLUB1 $signature" | mailx -s "Vous avez bien ete retire de la newsletter CLUB1" -r "Newsletter CLUB1 <nl-unsubscribe@club1.fr>" -- "$emailFrom"
+    content="Votre email $emailFrom a bien ete retire de la newsletter CLUB1\
+    \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a nl-subscribe@club1.fr a tout moment.$signature"
+    printf "$content"  | mailx -s "Vous avez bien ete retire de la newsletter CLUB1" -r "Newsletter CLUB1 <nl-unsubscribe@club1.fr>" -- "$emailFrom"
 else
     echo "Votre email $emailFrom n'est pas incrit a la newsletter CLUB1 $signature" | mailx -s "Votre email n est pas inscrit a la newsletter CLUB1" -r "Newsletter CLUB1 <nl-unsubscribe@club1.fr>" -- "$emailFrom"
 fi

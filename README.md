@@ -10,7 +10,7 @@ A very simple newsletter for CLUB1 server
 ## todo
 
 - [ ] use argument for newsletter prefix
-- [ ] ask for subscription after unsubscription
+- [x] ask for subscription after unsubscription
 - [ ] add list unsubscribe header
 - [ ] wrap text message to 72 chars
     - [ ] content type: format = fload (to allow client to display it nicely)
