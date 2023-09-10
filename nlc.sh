@@ -6,6 +6,8 @@ mail=$(cat)
 # réccupère le chemin indiquant l'emplacement des fichiers
 path=$1
 
+nl="$2"
+
 # cherche la première ligne qui contient `From: ` et la stocke dans une variable
 from=$(echo "$mail" | grep -E -m 1 "^From: ")
 
@@ -24,8 +26,8 @@ exist=$(grep -c -x -m 1 "$emailFrom" "$emails" || test $? = 1)
 if test $exist != 0
 then
     corp="votre email est deja inscrit a la newsletter CLUB1\
-    \nPour vous desinscrire, vous pouvez envoyer un email a : nl-unsubscribe@club1.fr"
-    printf "$corp$signature" | mailx -s "votre email est deja inscrit a la newsletter CLUB1" -r "Newsletter CLUB1 <nl-subscribe@club1.fr>" -- "$emailFrom"
+    \nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr"
+    printf "$corp$signature" | mailx -s "votre email est deja inscrit a la newsletter CLUB1" -r "Newsletter CLUB1 <$nl-subscribe@club1.fr>" -- "$emailFrom"
     exit
 fi
 
@@ -39,7 +41,7 @@ emailTo=$(echo "$to" | grep -E -m 1 -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z
 
 secret=$(cat "$path/secret")
 hash=$(echo -n "$emailFrom$secret" | sha256sum | cut -b 1-10)
-emailToLocal="nl-confirm+${hash}@club1.fr"
+emailToLocal="$nl-confirm+${hash}@club1.fr"
 
 . "$path/pick_signature.sh"
 
@@ -47,10 +49,10 @@ if test $emailTo = $emailToLocal
 then
     echo "$emailFrom" >> "$emails"
     corp="C'est bon!\nVotre email $emailFrom a bien ete ajoute a notre newsletter.\
-    \nPour vous desinscrire, vous pouvez envoyer un email a : nl-unsubscribe@club1.fr"
-    echo "$corp$signature" | mailx -s "Confirmation d'inscription" -r "Newsletter CLUB1 <nl-confirm@club1.fr>" -- "$emailFrom"
+    \nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr"
+    echo "$corp$signature" | mailx -s "Confirmation d'inscription" -r "Newsletter CLUB1 <$nl-confirm@club1.fr>" -- "$emailFrom"
 else
-    printf "Erreur\nAdresse de provenance : $emailFrom ne correspond pas.$signature" | mailx -s "no" -r "Newsletter CLUB1 <nl-confirm@club1.fr>" -- "$emailFrom"
+    printf "Erreur\nAdresse de provenance : $emailFrom ne correspond pas.$signature" | mailx -s "no" -r "Newsletter CLUB1 <$nl-confirm@club1.fr>" -- "$emailFrom"
 fi
 
 

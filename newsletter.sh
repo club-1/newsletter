@@ -5,7 +5,9 @@
 path="$1"
 
 # on récupère le contenu du mail à envoyer via paramètre
-content=$(cat "$2")
+content=$(cat "$3")
+
+nl="$2"
 
 # on vérifie si le contenu n'est pas vide
 if test -z "$content"
@@ -40,13 +42,13 @@ fi
 
 
 # on réccupère l'argument 1 correspondant au numéro de la NL
-counter=$3
+counter=$4
 
 # Ajoute le nombre de zéros necessaires devant le numéro de newsletters pour que cela prenne 3 caractères
 counter=$(printf '%03d\n' $counter)
 subject="[CLUB1] Newsletter $counter"
 
-content="$content\n\nhttps://club1.fr\n\nPour vous desinscrire, vous pouvez envoyer un email a : nl-unsubscribe@club1.fr"
+content="$content\n\nhttps://club1.fr\n\nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr"
 
 printf 'sending'
 

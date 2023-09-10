@@ -8,6 +8,8 @@ mail=$(cat)
 # réccupère le chemin indiquant l'emplacement des fichiers
 path=$1
 
+nl="$2"
+
 # cherche la première ligne qui contient `From: ` et la stocke dans une variable
 from=$(echo "$mail" | grep -E -m 1 "From: ")
 
@@ -30,10 +32,10 @@ then
     tmpemails=$(sed "/^$emailFrom\$/d" "$emails")
     echo "$tmpemails" > "$emails"
     content="Votre email $emailFrom a bien ete retire de la newsletter CLUB1\
-    \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a nl-subscribe@club1.fr a tout moment.$signature"
-    printf "$content"  | mailx -s "Vous avez bien ete retire de la newsletter CLUB1" -r "Newsletter CLUB1 <nl-unsubscribe@club1.fr>" -- "$emailFrom"
+    \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a $nl-subscribe@club1.fr a tout moment.$signature"
+    printf "$content"  | mailx -s "Vous avez bien ete retire de la newsletter CLUB1" -r "Newsletter CLUB1 <$nl-unsubscribe@club1.fr>" -- "$emailFrom"
 else
-    echo "Votre email $emailFrom n'est pas incrit a la newsletter CLUB1 $signature" | mailx -s "Votre email n est pas inscrit a la newsletter CLUB1" -r "Newsletter CLUB1 <nl-unsubscribe@club1.fr>" -- "$emailFrom"
+    echo "Votre email $emailFrom n'est pas incrit a la newsletter CLUB1 $signature" | mailx -s "Votre email n est pas inscrit a la newsletter CLUB1" -r "Newsletter CLUB1 <$nl-unsubscribe@club1.fr>" -- "$emailFrom"
 fi
 
 
