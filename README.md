@@ -7,6 +7,13 @@ A very simple newsletter for CLUB1 server
 - store emails in a file, separated by new lines
 - no web interface
 
+## todo
+
+- [ ] use argument for newsletter prefix
+- [ ] ask for subscription after unsubscription
+- [ ] add list unsubscribe header
+- [ ] wrap text message to 72 chars
+    - [ ] content type: format = fload (to allow client to display it nicely)
 
 
 ## Setup
@@ -35,6 +42,12 @@ Edit aliases [doc](https://club1.fr/docs/fr/outils/aliases.html#modifier-les-ali
 
 ### send newsletter
 
-    cat NL_FILE | newsletter.sh NL_NUMBER
+```sh
+./newsletter.sh DATA_PATH NL_FILE NL_NUMBER
+```
 
-Where `NL_FILE` is the file containing the newsletter text and `NL_NUMBER` is the newsletter number.
+Where
+
+- `DATA_PATH` is the path of the newsletter datas (list of emails) without trailing slash
+- `NL_FILE` is the file containing the newsletter text
+- `NL_NUMBER` is the newsletter number (no need to add leading zeros)
