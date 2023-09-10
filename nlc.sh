@@ -1,4 +1,4 @@
-# stocke stdin (standard input) dans une variable
+#!/bin/sh -e
 
 # stocke stdin (standard input) dans une variable
 mail=$(cat)
@@ -13,11 +13,15 @@ from=$(echo "$mail" | grep -E -m 1 "^From: ")
 # dans cette ligne, récuppère ce qui ressemble à une adresse Email et stocke dans une variable
 emailFrom=$(echo "$from" | grep -E -m 1 -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b")
 
+
+# chemin du fichier contenant les emails
+emails="$path/emails"
+
 # indique si l'adresse email reçue existe déjà dans le fichiers des adresses
-exist=$(echo "$emails" | grep -c -m 1 "$emailFrom")
+exist=$(grep -c -x -m 1 "$emailFrom" "$emails" || test $? = 1)
 
 # si l'adresse existe deja, on arrête la et on renvoie un email expliquant ca
-if test $exist > 0
+if test $exist != 0
 then
     corp="votre email est deja inscrit a la newsletter CLUB1\
     \nPour vous desinscrire, vous pouvez envoyer un email a : nl-unsubscribe@club1.fr"
@@ -41,7 +45,7 @@ emailToLocal="nl-confirm+${hash}@club1.fr"
 
 if test $emailTo = $emailToLocal
 then
-    echo "$emailFrom" >> "$path/emails"
+    echo "$emailFrom" >> "$emails"
     corp="C'est bon!\nVotre email $emailFrom a bien ete ajoute a notre newsletter.\
     \nPour vous desinscrire, vous pouvez envoyer un email a : nl-unsubscribe@club1.fr"
     echo "$corp$signature" | mailx -s "Confirmation d'inscription" -r "Newsletter CLUB1 <nl-confirm@club1.fr>" -- "$emailFrom"

@@ -1,3 +1,4 @@
+#!/bin/sh -e
 # INSCRIPTION A LA NEWSLETTER
 
 
@@ -15,11 +16,11 @@ from=$(echo "$mail" | grep -E -m 1 "^From: ")
 emailFrom=$(echo "$from" | grep -E -m 1 -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b")
 
 
-# lit le fichier contenant les adresses email
-emails=$(cat "$path/emails")
+# chemin du fichier contenant les emails
+emails="$path/emails"
 
 # indique si l'adresse email reçue existe déjà dans le fichiers des adresses
-exist=$(echo "$emails" | grep -c -m 1 "$emailFrom")
+exist=$(grep -c -x -m 1 "$emailFrom" "$emails" || test $? = 1)
 
 . "$path/pick_signature.sh"
 
@@ -38,21 +39,3 @@ else
     \nPour vous desinscrire, vous pouvez envoyer un email a : nl-unsubscribe@club1.fr"
     printf "$corp$signature" | mailx -s "votre email est deja inscrit a la newsletter CLUB1" -r "Newsletter CLUB1 <nl-subscribe@club1.fr>" -- "$emailFrom"
 fi
-
-
-
-
-
-
-
-
-
-
-# echo "$mail" | grep -E -m 1 "From: " | grep -E -m 1 -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b" >> ~/scripts/emails
-
-
-
-# echo "$mail" | grep -E -m 1 "From: " >> ~/scripts/subscribe
-
-# echo "$mail" | grep -E -m 1 -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b" >> ~/scripts/subscribe
-

@@ -1,3 +1,4 @@
+#!/bin/sh -e
 # INSCRIPTION A LA NEWSLETTER
 
 
@@ -15,18 +16,20 @@ from=$(echo "$mail" | grep -E -m 1 "From: ")
 emailFrom=$(echo "$from" | grep -E -m 1 -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b")
 
 
-# lit le fichier contenant les adresses email
-emails=$(cat "$path/emails")
+# chemin du fichier contenant les emails
+emails="$path/emails"
 
 # indique si l'adresse email reçue existe déjà dans le fichiers des adresses
-exist=$(echo "$emails" | grep -c -m 1 "$emailFrom")
+exist=$(grep -c -x -m 1 "$emailFrom" "$emails" || test $? = 1)
 
 . "$path/pick_signature.sh"
 
-# Si elle n'existe pas déjà, on l'ajoute. Sinon on envoie un email indiquant qu'elle y est déjà
+# Si elle n'existe pas déjà, on la supprime. Sinon on envoie un email indiquant qu'elle y est déjà
 if test $exist = 1
 then
-    sed -i "/$emailFrom/d" "$path/emails"
+    tmpemails=$(sed "/^$emailFrom\$/d" "$emails")
+    echo "$tmpemails" > "$emails"
+
     echo "Votre email $emailFrom a bien ete retire de la newsletter CLUB1 $signature" | mailx -s "Vous avez bien ete retire de la newsletter CLUB1" -r "Newsletter CLUB1 <nl-unsubscribe@club1.fr>" -- "$emailFrom"
 else
     echo "Votre email $emailFrom n'est pas incrit a la newsletter CLUB1 $signature" | mailx -s "Votre email n est pas inscrit a la newsletter CLUB1" -r "Newsletter CLUB1 <nl-unsubscribe@club1.fr>" -- "$emailFrom"
