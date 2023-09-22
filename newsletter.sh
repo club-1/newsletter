@@ -54,7 +54,7 @@ printf 'sending'
 
 echo "$uniqueEmails" | while read addr
 do
-    printf "$content" | mailx -s "$subject" -r 'Newsletter CLUB1 <nouvelles@club1.fr>' -- "$addr"
+    printf "$content" | mailx -s "$subject" -a "List-Unsubscribe: <mailto:$nl-unsubscribe@club1.fr>" -r 'Newsletter CLUB1 <nouvelles@club1.fr>' -- "$addr"
     printf '.'
     sleep 0.2
 done
