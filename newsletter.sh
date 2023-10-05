@@ -1,4 +1,4 @@
-#!/bin/sh -e
+#!/bin/bash -e
 # ENVOI UN EMAIL A TOUT LES EMAILS INSCRITS A LA NEWSLETTER
 
 # on récupère le chemin où se trouvent les données
@@ -25,9 +25,11 @@ count=$(echo "$uniqueEmails" | wc -l)
 # Estimate sending time, here for 0.2 sec per email
 time=$(($count / 5))
 
-printf '\n=========newsletter content=========\n'
+echo ''
+echo '========================== newsletter content =========================='
 echo "$content"
-printf '====================================\n\n'
+echo '========================================================================'
+echo ''
 echo "Do you really want to send this to $count email addresses ? (estimated sending time is $time seconds) y/[n]"
 
 # on lit la réponse de l'utilisateurice
@@ -48,13 +50,18 @@ counter=$4
 counter=$(printf '%03d\n' $counter)
 subject="[CLUB1] Newsletter $counter"
 
-content="$content\n\nhttps://club1.fr\n\nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr"
+sig="\n-- \nhttps://club1.fr\n\nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr"
 
 printf 'sending'
 
 echo "$uniqueEmails" | while read addr
 do
-    printf "$content" | mailx -s "$subject" -a "List-Unsubscribe: <mailto:$nl-unsubscribe@club1.fr>" -r 'Newsletter CLUB1 <nouvelles@club1.fr>' -- "$addr"
+    (echo "$content"; echo -e $sig) | qprint --encode | mailx \
+        -s "$subject" \
+        -a "List-Unsubscribe: <mailto:$nl-unsubscribe@club1.fr>" \
+        -a "Content-Transfer-Encoding: quoted-printable" \
+        -r 'Newsletter CLUB1 <nouvelles@club1.fr>' \
+        -- "$addr"
     printf '.'
     sleep 0.2
 done
