@@ -74,6 +74,14 @@ path=$2
 # réccupère le préfix
 nl="$3"
 
+# check if email have Autosubmitted Header, if so, abort mission and prevent daemon to send any error email to avoid infinite bouncing
+autoSubmitted=$(echo "$mail" | grep -cEi -m 1 "^Auto-Submitted:" || test $? = 1)
+
+if test $autoSubmitted = 1
+then
+    exit 0
+fi
+
 # cherche la première ligne qui contient `From: ` et la stocke dans une variable
 from=$(echo "$mail" | grep -Ei -m 1 "^From: ")
 
