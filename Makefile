@@ -11,8 +11,10 @@ BINS        := $(wildcard *.sh)
 # Installed files
 BINS_INST   := $(patsubst %,$(SBIN_DIR)/%,$(BINS))
 
+all: ;
+
 install: | $(DIRS)
-	install -D $(BINS) $(SBIN_DIR) -m 750
+	install -D $(BINS) $(SBIN_DIR) -m 750 -g mail
 
 uninstall:
 	-rm $(BINS_INST)
@@ -20,4 +22,4 @@ uninstall:
 $(DIRS):
 	install -d $@
 
-.PHONY: install uninstall
+.PHONY: all install uninstall
