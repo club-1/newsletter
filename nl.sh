@@ -1,21 +1,27 @@
 #!/bin/sh -e
 
-subscribe () {
-    # Si elle n'existe pas déjà, on l'ajoute. Sinon on envoie un email indiquant qu'elle y est déjà
-    if test $exist = 0
+# si l'adresse existe deja, on arrête la et on renvoie un email expliquant ca
+checkAlreadySubscribed () {
+    if test $exist != 0
     then
-        secret=$(cat "$path/secret")
-        hash=$(echo -n "$emailFrom$secret" | sha256sum | cut -b 1-10)
-        confirmAdress="$nl-confirm+${hash}@club1.fr"
-        corp="Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir la newsletter CLUB1\
-        \nOu envoyer un email a l'adresse : $confirmAdress\
-        \nVous recevrez un email de confirmation"
-        printf "$corp$signature" | mailx -s "inscription a la newsletter CLUB1" -a "Reply-to: $confirmAdress" -r "Newsletter CLUB1 <$nl-subscribe@club1.fr>" -- "$emailFrom"
-    else
         corp="votre email est deja inscrit a la newsletter CLUB1\
         \nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr"
         printf "$corp$signature" | mailx -s "votre email est deja inscrit a la newsletter CLUB1" -r "Newsletter CLUB1 <$nl-subscribe@club1.fr>" -- "$emailFrom"
+        exit
     fi
+}
+
+subscribe () {
+    checkAlreadySubscribed
+
+    secret=$(cat "$path/secret")
+    hash=$(echo -n "$emailFrom$secret" | sha256sum | cut -b 1-10)
+    confirmAdress="$nl-confirm+${hash}@club1.fr"
+    corp="Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir la newsletter CLUB1\
+    \nOu envoyer un email a l'adresse : $confirmAdress\
+    \nVous recevrez un email de confirmation"
+    printf "$corp$signature" | mailx -s "inscription a la newsletter CLUB1" -a "Reply-to: $confirmAdress" -r "Newsletter CLUB1 <$nl-subscribe@club1.fr>" -- "$emailFrom"
+
 }
 
 unsubscribe () {
@@ -33,14 +39,7 @@ unsubscribe () {
 }
 
 confirm () {
-    # si l'adresse existe deja, on arrête la et on renvoie un email expliquant ca
-    if test $exist != 0
-    then
-        corp="votre email est deja inscrit a la newsletter CLUB1\
-        \nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr"
-        printf "$corp$signature" | mailx -s "votre email est deja inscrit a la newsletter CLUB1" -r "Newsletter CLUB1 <$nl-subscribe@club1.fr>" -- "$emailFrom"
-        exit
-    fi
+    checkAlreadySubscribed
 
     # cherche la première ligne qui contient `To: ` et la stocke dans une variable
     to=$(echo "$mail" | grep -Ei -m 1 "To: ")
