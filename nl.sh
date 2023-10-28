@@ -98,7 +98,7 @@ exist=$(grep -c -x -m 1 "$emailFrom" "$emails" || test $? = 1)
 
 # charge une signature depuis le fichier
 signature=$(shuf -n 1 "$path/signatures")
-signature="\n\n$signature\n\nhttps://club1.fr"
+signature="\n\n$signature\n\n-- \nCLUB1 - https://club1.fr"
 
 # lance la sous commande correspondante
 case $subcmd in
