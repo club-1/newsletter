@@ -37,21 +37,3 @@ then
 else
     echo "Votre email $emailFrom n'est pas incrit a la newsletter CLUB1 $signature" | mailx -s "Votre email n est pas inscrit a la newsletter CLUB1" -r "Newsletter CLUB1 <$nl-unsubscribe@club1.fr>" -- "$emailFrom"
 fi
-
-
-
-
-
-
-
-
-
-
-# echo "$mail" | grep -E -m 1 "From: " | grep -E -m 1 -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b" >> ~/scripts/emails
-
-
-
-# echo "$mail" | grep -E -m 1 "From: " >> ~/scripts/subscribe
-
-# echo "$mail" | grep -E -m 1 -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b" >> ~/scripts/subscribe
-
