@@ -11,7 +11,7 @@ path=$1
 nl="$2"
 
 # cherche la première ligne qui contient `From: ` et la stocke dans une variable
-from=$(echo "$mail" | grep -E -m 1 "From: ")
+from=$(echo "$mail" | grep -Ei -m 1 "From: ")
 
 
 # dans cette ligne, récuppère ce qui ressemble à une adresse Email et stocke dans une variable
