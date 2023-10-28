@@ -50,7 +50,9 @@ counter=$4
 counter=$(printf '%03d\n' $counter)
 subject="[CLUB1] Newsletter $counter"
 
-sig="\n-- \nhttps://club1.fr\n\nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr"
+sig="\n-- \nCLUB1 - https://club1.fr\
+    \n\nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr\
+    \n\nArchive des newsletters disponible sur le site : https://club1.fr/newsletters"
 
 printf 'sending'
 
@@ -60,7 +62,7 @@ do
         -s "$subject" \
         -a "List-Unsubscribe: <mailto:$nl-unsubscribe@club1.fr>" \
         -a "Content-Transfer-Encoding: quoted-printable" \
-        -r 'Newsletter CLUB1 <nouvelles@club1.fr>' \
+        -r "Newsletter CLUB1 <$nl@club1.fr>" \
         -- "$addr"
     printf '.'
     sleep 0.2

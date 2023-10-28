@@ -53,3 +53,5 @@ Where
 - `PREFIX` is the newsletter prefix. It should be the same as for sbscription management commands.
 - `NL_FILE` is the file containing the newsletter text
 - `NL_NUMBER` is the newsletter number (no need to add leading zeros)
+
+This will send a newsletter to every mail addresses listed in the `emails` file. The __From address__  will be `PREFIX@club1.fr`.
