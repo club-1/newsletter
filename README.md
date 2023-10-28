@@ -5,6 +5,7 @@ A very simple newsletter for CLUB1 server
 - subscribe and unsubscribe using emails
     - email confirmation at subscription
 - store emails in a file, separated by new lines
+- a signature is picked out randomly from your selection to add some human vibe to automatic emails
 - no web interface
 
 ## todo
@@ -21,21 +22,21 @@ Clone this repo into `/var/tmp/nl/`
 
 Create 3 files :
 
-    emails              must be readable
+    emails              must be readable and writable
     secret              must be readable
-    signatures          must be readable and writable
+    signatures          must be readable
 
-Fill `secret` with a long sentence
+Fill `secret` with a long sentence.
 
-Fill `signatures` with one sentence per line. On will be used randomly as a little message at the end of each subscription or unsubscription email.
+Fill `signatures` with one sentence per line. On will be used randomly as a little message at the end of each automatic emails.
 
 Edit aliases [doc](https://club1.fr/docs/fr/outils/aliases.html#modifier-les-alias-de-reception)
 
-    nl-subscribe:        | "/var/tmp/nl/nls.sh /var/tmp/nl nl"
-    nl-confirm:          | "/var/tmp/nl/nlc.sh /var/tmp/nl nl"
-    nl-unsubscribe:      | "/var/tmp/nl/nlu.sh /var/tmp/nl nl"
+    nl-subscribe:        | "/var/tmp/nl/nl.sh subscribe /var/tmp/nl nl"
+    nl-confirm:          | "/var/tmp/nl/nl.sh confirm /var/tmp/nl nl"
+    nl-unsubscribe:      | "/var/tmp/nl/nl.sh unsubscribe /var/tmp/nl nl"
 
-For `nls.sh`, `nlc.sh` and `nlu.sh`, first argument is newsletter data path (list of emails, signatures, secret). Second argument is the newsletter prefix. Which is `nl` in the above example. This as to be in sync with the aliases.
+For `nl.sh`, first argument is newsletter data path (list of emails, signatures, secret). Second argument is the newsletter prefix. Which is `nl` in the above example. This as to be in sync with the aliases.
 
 
 ## Usage
