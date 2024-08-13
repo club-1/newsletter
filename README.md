@@ -35,11 +35,11 @@ Fill `signature` with text that need to appear at the end of each email. This wi
 
 Fill `title` with the name of the newsletter.
 
-Edit aliases [doc](https://club1.fr/docs/fr/outils/aliases.html#modifier-les-alias-de-reception)
+User home directory must contain 3 files:
 
-    USER+subscribe:        | "/var/tmp/nl/nl.sh subscribe"
-    USER+confirm:          | "/var/tmp/nl/nl.sh confirm"
-    USER+unsubscribe:      | "/var/tmp/nl/nl.sh unsubscribe"
+    .forward+subscribe        | "/var/tmp/nl/nl.sh subscribe"
+    .forward+confirm          | "/var/tmp/nl/nl.sh confirm"
+    .forward+unsubscribe      | "/var/tmp/nl/nl.sh unsubscribe"
 
 For `nl.sh`, first argument is newsletter data path (list of emails, signatures, secret).
 
