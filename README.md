@@ -22,10 +22,10 @@ Clone this repo into `/var/tmp/nl/`
 Create 3 files :
 
     emails              must be readable and writable
-    secret              must be readable
+    .secret             must be readable
     signatures          must be readable
 
-Fill `secret` with a long sentence.
+Fill `.secret` with a long sentence.
 
 Fill `signatures` with one sentence per line. On will be used randomly as a little message at the end of each automatic emails.
 
