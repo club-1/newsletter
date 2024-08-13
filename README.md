@@ -23,11 +23,14 @@ Create 3 files :
 
     emails              must be readable and writable
     .secret             must be readable
-    signatures          must be readable
+    signature           must be readable
+    ambiant-lines       must be readable
 
 Fill `.secret` with a long sentence.
 
-Fill `signatures` with one sentence per line. On will be used randomly as a little message at the end of each automatic emails.
+Fill `ambiant-lines` with one sentence per line. On will be used randomly as a little message at the end of each automatic emails.
+
+Fill `signature` with text that need to appear at the end of each email. This will be placed after a `-- ` signature separator.
 
 Edit aliases [doc](https://club1.fr/docs/fr/outils/aliases.html#modifier-les-alias-de-reception)
 
