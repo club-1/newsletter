@@ -51,7 +51,7 @@ counter=$(printf '%03d\n' $counter)
 subject="[CLUB1] Newsletter $counter"
 
 sig="\n-- \nCLUB1 - https://club1.fr\
-    \n\nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr\
+    \n\nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr\
     \n\nArchive des newsletters disponible sur le site : https://club1.fr/newsletters"
 
 printf 'sending'
@@ -60,7 +60,7 @@ echo "$uniqueEmails" | while read addr
 do
     (echo "$content"; echo -e $sig) | qprint --encode | mailx \
         -s "$subject" \
-        -a "List-Unsubscribe: <mailto:$nl-unsubscribe@club1.fr>" \
+        -a "List-Unsubscribe: <mailto:$nl+unsubscribe@club1.fr>" \
         -a "Content-Transfer-Encoding: quoted-printable" \
         -r "Newsletter CLUB1 <$nl@club1.fr>" \
         -- "$addr"
