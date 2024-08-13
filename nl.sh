@@ -13,7 +13,13 @@ checkAlreadySubscribed () {
 
 # génère un identifiant de la forme `<NLNAME-XXXXX@club1.fr>` avec le hash basé sur le secret du serveur
 confirmID () {
-    secret=$(cat "$path/secret")
+    if test ! -s "$path/.secret"
+    then
+        head -c 30 /dev/urandom | base64 > "$path/.secret"
+        touch "$path/.secret"
+        chmod 600 "$path/.secret"
+    fi
+    secret=$(cat "$path/.secret")
     hash=$(echo -n "$emailFrom$secret" | sha256sum | cut -b 1-16)
     echo "<$nl-${hash}@club1.fr>"
 }
