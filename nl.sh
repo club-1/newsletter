@@ -11,21 +11,20 @@ checkAlreadySubscribed () {
     fi
 }
 
-# génère une adresse email pointant vers le script de confirmation avec le hash basé sur le secret du serveur
-confirmAdress () {
+# génère un identifiant de la forme `<XXXXX@club1.fr>` avec le hash basé sur le secret du serveur
+confirmID () {
     secret=$(cat "$path/secret")
     hash=$(echo -n "$emailFrom$secret" | sha256sum | cut -b 1-10)
-    echo "$nl-confirm+${hash}@club1.fr"
+    echo "<${hash}@club1.fr>"
 }
 
 subscribe () {
     checkAlreadySubscribed
 
-    confirmAdress=$(confirmAdress)
+    headerMessageID="Message-ID: $(confirmID)"
     corp="Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir la newsletter CLUB1\
-    \nOu envoyer un email a l'adresse : $confirmAdress\
     \nVous recevrez un email de confirmation"
-    printf "$corp$signature" | mailx -s "inscription a la newsletter CLUB1" -a "Reply-to: $confirmAdress" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl-subscribe@club1.fr>" -- "$emailFrom"
+    printf "$corp$signature" | mailx -s "inscription a la newsletter CLUB1" -a "Reply-to: $nl-confirm@club1.fr" -a "$headerInReplyTo" -a "$headerMessageID" -r "Newsletter CLUB1 <$nl-subscribe@club1.fr>" -- "$emailFrom"
 }
 
 unsubscribe () {
@@ -45,13 +44,10 @@ unsubscribe () {
 confirm () {
     checkAlreadySubscribed
 
-    # cherche la première ligne qui contient `To: ` et la stocke dans une variable
-    to=$(echo "$mail" | grep -Ei -m 1 "To: ")
+    # on réccupère le header In-Reply-To
+    emailInReplyTo=$(echo "$mail" | grep -Eoi -m 1 "^In-Reply-To: .*" | grep -Eo "<.*>")
 
-    # dans cette ligne, récuppère ce qui ressemble à une adresse Email et stocke dans une variable
-    emailTo=$(echo "$to" | grep -E -m 1 -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b")
-
-    if test $emailTo = $(confirmAdress)
+    if test $emailInReplyTo = $(confirmID)
     then
         echo "$emailFrom" >> "$emails"
         corp="C'est bon!\nVotre email $emailFrom a bien ete ajoute a notre newsletter.\
