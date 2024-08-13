@@ -45,12 +45,13 @@ For `nl.sh`, first argument is newsletter data path (list of emails, signatures,
 ### send newsletter
 
 ```sh
-./newsletter.sh DATA_PATH NL_FILE
+./newsletter.sh DATA_PATH SUBJECT NL_FILE
 ```
 
 Where
 
 - `DATA_PATH` is the path of the newsletter datas (list of emails) without trailing slash
+- `SUBJECT` subject of the letter
 - `NL_FILE` is the file containing the newsletter text
 
 This will send a newsletter to every mail addresses listed in the `emails` file. The __From address__  will be `USER@club1.fr`.
