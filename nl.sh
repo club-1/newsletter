@@ -4,9 +4,10 @@
 checkAlreadySubscribed () {
     if test $exist != 0
     then
-        body="votre email est deja inscrit a la newsletter CLUB1\
+        body="votre email est deja inscrit a :\
+        \n $title\
         \nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
-        printf "$body$footer" | mailx -s "votre email est deja inscrit a la newsletter CLUB1" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl+subscribe@club1.fr>" -- "$emailFrom"
+        printf "$body$footer" | mailx -s "votre email est deja inscrit" -a "$headerInReplyTo" -r "$title <$nl+subscribe@club1.fr>" -- "$emailFrom"
         exit
     fi
 }
@@ -28,9 +29,9 @@ subscribe () {
     checkAlreadySubscribed
 
     headerMessageID="Message-ID: $(confirmID)"
-    body="Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir la newsletter CLUB1\
+    body="Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir la newsletter\
     \nVous recevrez un email de confirmation"
-    printf "$body$footer" | mailx -s "inscription a la newsletter CLUB1" -a "Reply-to: $nl+confirm@club1.fr" -a "$headerInReplyTo" -a "$headerMessageID" -r "Newsletter CLUB1 <$nl+subscribe@club1.fr>" -- "$emailFrom"
+    printf "$body$footer" | mailx -s "inscription" -a "Reply-to: $nl+confirm@club1.fr" -a "$headerInReplyTo" -a "$headerMessageID" -r "$title <$nl+subscribe@club1.fr>" -- "$emailFrom"
 }
 
 unsubscribe () {
@@ -39,11 +40,12 @@ unsubscribe () {
     then
         tmpemails=$(sed "/^$emailFrom\$/d" "$emails")
         echo "$tmpemails" > "$emails"
-        content="Votre email $emailFrom a bien ete retire de la newsletter CLUB1\
-        \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a $nl+subscribe@club1.fr a tout moment.$footer"
-        printf "$content"  | mailx -s "Vous avez bien ete retire de la newsletter CLUB1" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
+        body="Votre email $emailFrom a bien ete retire de la newsletter :\
+        \n\n$title\
+        \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a $nl+subscribe@club1.fr a tout moment."
+        printf "$body$footer"  | mailx -s "Vous avez bien ete retire de la newsletter" -a "$headerInReplyTo" -r "$title <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
     else
-        echo "Votre email $emailFrom n'est pas incrit a la newsletter CLUB1 $footer" | mailx -s "Votre email n est pas inscrit a la newsletter CLUB1" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
+        echo "Votre email $emailFrom n'est pas incrit a : \n$title$footer" | mailx -s "Votre email n est pas inscrit" -a "$headerInReplyTo" -r "$title <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
     fi
 }
 
@@ -56,7 +58,7 @@ confirm () {
     if test $emailInReplyTo = $(confirmID)
     then
         echo "$emailFrom" >> "$emails"
-        body="C'est bon!\nVotre email $emailFrom a bien ete ajoute a notre newsletter.\
+        body="C'est bon!\nVotre email $emailFrom a bien ete ajoute.\
         \nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
         echo "$body$footer" | mailx -s "Confirmation d'inscription" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl+confirm@club1.fr>" -- "$emailFrom"
     else
@@ -97,6 +99,9 @@ emails="$path/emails"
 
 # indique si l'adresse email reçue existe déjà dans le fichiers des adresses
 exist=$(grep -c -x -m 1 "$emailFrom" "$emails" || test $? = 1)
+
+# read the title of the newsletter
+title=$(cat "$path/title")
 
 # charge une signature depuis le fichier
 ambiant=$(shuf -n 1 "$path/ambiant-lines")

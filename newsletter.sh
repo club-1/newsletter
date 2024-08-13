@@ -42,8 +42,7 @@ then
     exit 2
 fi
 
-subject="[CLUB1] Newsletter"
-
+title=$(cat "$path/title")
 signature=$(cat "$path/signature")
 
 footer="\n-- \n$signature\
@@ -54,10 +53,10 @@ printf 'sending'
 echo "$uniqueEmails" | while read addr
 do
     (echo "$content"; echo -e $footer) | qprint --encode | mailx \
-        -s "$subject" \
+        -s "$title" \
         -a "List-Unsubscribe: <mailto:$nl+unsubscribe@club1.fr>" \
         -a "Content-Transfer-Encoding: quoted-printable" \
-        -r "Newsletter CLUB1 <$nl@club1.fr>" \
+        -r "$title <$nl@club1.fr>" \
         -- "$addr"
     printf '.'
     sleep 0.2
