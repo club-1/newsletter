@@ -72,10 +72,10 @@ mail=$(cat)
 # on associe le premier argument à la sous commande
 subcmd=$1
 
-# réccupère le chemin indiquant l'emplacement des fichiers
-path=$2
+# newsletter folder
+path="$HOME/newsletter"
 
-# réccupère le préfix
+# prefix is username
 nl="$USER"
 
 # check if email have Autosubmitted Header, if so, abort mission and prevent daemon to send any error email to avoid infinite bouncing

@@ -1,16 +1,17 @@
 #!/bin/bash -e
 # ENVOI UN EMAIL A TOUT LES EMAILS INSCRITS A LA NEWSLETTER
 
-# on récupère le chemin où se trouvent les données
-path="$1"
-
 # on récupère le sujet du mail à envoyer via paramètre
-subject="$2"
+subject="$1"
 
 # on récupère le contenu du mail à envoyer via paramètre
-content=$(cat "$3")
+content=$(cat "$2")
 
+# newsletter prefix is username
 nl="$USER"
+
+# newsletter folder
+path="$HOME/newsletter"
 
 title=$(cat "$path/title")
 signature=$(cat "$path/signature")
