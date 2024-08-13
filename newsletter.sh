@@ -42,13 +42,7 @@ then
     exit 2
 fi
 
-
-# on réccupère l'argument 1 correspondant au numéro de la NL
-counter=$4
-
-# Ajoute le nombre de zéros necessaires devant le numéro de newsletters pour que cela prenne 3 caractères
-counter=$(printf '%03d\n' $counter)
-subject="[CLUB1] Newsletter $counter"
+subject="[CLUB1] Newsletter"
 
 sig="\n-- \nCLUB1 - https://club1.fr\
     \n\nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr\

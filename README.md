@@ -44,7 +44,7 @@ For `nl.sh`, first argument is newsletter data path (list of emails, signatures,
 ### send newsletter
 
 ```sh
-./newsletter.sh DATA_PATH PREFIX NL_FILE NL_NUMBER
+./newsletter.sh DATA_PATH PREFIX NL_FILE
 ```
 
 Where
@@ -52,6 +52,5 @@ Where
 - `DATA_PATH` is the path of the newsletter datas (list of emails) without trailing slash
 - `PREFIX` is the newsletter prefix. It should be the same as for sbscription management commands.
 - `NL_FILE` is the file containing the newsletter text
-- `NL_NUMBER` is the newsletter number (no need to add leading zeros)
 
 This will send a newsletter to every mail addresses listed in the `emails` file. The __From address__  will be `PREFIX@club1.fr`.
