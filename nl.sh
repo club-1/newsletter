@@ -11,11 +11,11 @@ checkAlreadySubscribed () {
     fi
 }
 
-# génère un identifiant de la forme `<XXXXX@club1.fr>` avec le hash basé sur le secret du serveur
+# génère un identifiant de la forme `<NLNAME-XXXXX@club1.fr>` avec le hash basé sur le secret du serveur
 confirmID () {
     secret=$(cat "$path/secret")
-    hash=$(echo -n "$emailFrom$secret" | sha256sum | cut -b 1-10)
-    echo "<${hash}@club1.fr>"
+    hash=$(echo -n "$emailFrom$secret" | sha256sum | cut -b 1-16)
+    echo "<$nl-${hash}@club1.fr>"
 }
 
 subscribe () {
