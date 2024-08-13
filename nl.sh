@@ -5,8 +5,8 @@ checkAlreadySubscribed () {
     if test $exist != 0
     then
         corp="votre email est deja inscrit a la newsletter CLUB1\
-        \nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr"
-        printf "$corp$signature" | mailx -s "votre email est deja inscrit a la newsletter CLUB1" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl-subscribe@club1.fr>" -- "$emailFrom"
+        \nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
+        printf "$corp$signature" | mailx -s "votre email est deja inscrit a la newsletter CLUB1" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl+subscribe@club1.fr>" -- "$emailFrom"
         exit
     fi
 }
@@ -24,7 +24,7 @@ subscribe () {
     headerMessageID="Message-ID: $(confirmID)"
     corp="Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir la newsletter CLUB1\
     \nVous recevrez un email de confirmation"
-    printf "$corp$signature" | mailx -s "inscription a la newsletter CLUB1" -a "Reply-to: $nl-confirm@club1.fr" -a "$headerInReplyTo" -a "$headerMessageID" -r "Newsletter CLUB1 <$nl-subscribe@club1.fr>" -- "$emailFrom"
+    printf "$corp$signature" | mailx -s "inscription a la newsletter CLUB1" -a "Reply-to: $nl+confirm@club1.fr" -a "$headerInReplyTo" -a "$headerMessageID" -r "Newsletter CLUB1 <$nl+subscribe@club1.fr>" -- "$emailFrom"
 }
 
 unsubscribe () {
@@ -34,10 +34,10 @@ unsubscribe () {
         tmpemails=$(sed "/^$emailFrom\$/d" "$emails")
         echo "$tmpemails" > "$emails"
         content="Votre email $emailFrom a bien ete retire de la newsletter CLUB1\
-        \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a $nl-subscribe@club1.fr a tout moment.$signature"
-        printf "$content"  | mailx -s "Vous avez bien ete retire de la newsletter CLUB1" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl-unsubscribe@club1.fr>" -- "$emailFrom"
+        \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a $nl+subscribe@club1.fr a tout moment.$signature"
+        printf "$content"  | mailx -s "Vous avez bien ete retire de la newsletter CLUB1" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
     else
-        echo "Votre email $emailFrom n'est pas incrit a la newsletter CLUB1 $signature" | mailx -s "Votre email n est pas inscrit a la newsletter CLUB1" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl-unsubscribe@club1.fr>" -- "$emailFrom"
+        echo "Votre email $emailFrom n'est pas incrit a la newsletter CLUB1 $signature" | mailx -s "Votre email n est pas inscrit a la newsletter CLUB1" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
     fi
 }
 
@@ -51,10 +51,10 @@ confirm () {
     then
         echo "$emailFrom" >> "$emails"
         corp="C'est bon!\nVotre email $emailFrom a bien ete ajoute a notre newsletter.\
-        \nPour vous desinscrire, vous pouvez envoyer un email a : $nl-unsubscribe@club1.fr"
-        echo "$corp$signature" | mailx -s "Confirmation d'inscription" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl-confirm@club1.fr>" -- "$emailFrom"
+        \nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
+        echo "$corp$signature" | mailx -s "Confirmation d'inscription" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl+confirm@club1.fr>" -- "$emailFrom"
     else
-        printf "Erreur\nAdresse de provenance : $emailFrom ne correspond pas.$signature" | mailx -s "Erreur lors de la confirmation" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl-confirm@club1.fr>" -- "$emailFrom"
+        printf "Erreur\nAdresse de provenance : $emailFrom ne correspond pas.$signature" | mailx -s "Erreur lors de la confirmation" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl+confirm@club1.fr>" -- "$emailFrom"
     fi
 }
 

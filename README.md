@@ -32,9 +32,9 @@ Fill `signatures` with one sentence per line. On will be used randomly as a litt
 
 Edit aliases [doc](https://club1.fr/docs/fr/outils/aliases.html#modifier-les-alias-de-reception)
 
-    nl-subscribe:        | "/var/tmp/nl/nl.sh subscribe /var/tmp/nl nl"
-    nl-confirm:          | "/var/tmp/nl/nl.sh confirm /var/tmp/nl nl"
-    nl-unsubscribe:      | "/var/tmp/nl/nl.sh unsubscribe /var/tmp/nl nl"
+    nl+subscribe:        | "/var/tmp/nl/nl.sh subscribe /var/tmp/nl nl"
+    nl+confirm:          | "/var/tmp/nl/nl.sh confirm /var/tmp/nl nl"
+    nl+unsubscribe:      | "/var/tmp/nl/nl.sh unsubscribe /var/tmp/nl nl"
 
 For `nl.sh`, first argument is newsletter data path (list of emails, signatures, secret). Second argument is the newsletter prefix. Which is `nl` in the above example. This as to be in sync with the aliases.
 
