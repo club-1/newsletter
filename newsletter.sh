@@ -5,9 +5,9 @@
 path="$1"
 
 # on récupère le contenu du mail à envoyer via paramètre
-content=$(cat "$3")
+content=$(cat "$2")
 
-nl="$2"
+nl="$USER"
 
 # on vérifie si le contenu n'est pas vide
 if test -z "$content"
