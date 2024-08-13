@@ -17,14 +17,15 @@ A very simple newsletter for CLUB1 server
 
 ## Setup
 
-Clone this repo into `/var/tmp/nl/`
-
-Create 3 files :
+A folder called `newsletter` in user home must contain those files:
 
     emails              must be readable and writable
     .secret             must be readable
-    signature           must be readable
     ambiant-lines       must be readable
+    signature           must be readable
+    title               must be readable
+
+`emails` will be filled with each email that subscribed to the newsletter.
 
 Fill `.secret` with a long sentence.
 
@@ -32,11 +33,13 @@ Fill `ambiant-lines` with one sentence per line. On will be used randomly as a l
 
 Fill `signature` with text that need to appear at the end of each email. This will be placed after a `-- ` signature separator.
 
+Fill `title` with the name of the newsletter.
+
 Edit aliases [doc](https://club1.fr/docs/fr/outils/aliases.html#modifier-les-alias-de-reception)
 
-    USER+subscribe:        | "/var/tmp/nl/nl.sh subscribe /var/tmp/nl"
-    USER+confirm:          | "/var/tmp/nl/nl.sh confirm /var/tmp/nl"
-    USER+unsubscribe:      | "/var/tmp/nl/nl.sh unsubscribe /var/tmp/nl"
+    USER+subscribe:        | "/var/tmp/nl/nl.sh subscribe"
+    USER+confirm:          | "/var/tmp/nl/nl.sh confirm"
+    USER+unsubscribe:      | "/var/tmp/nl/nl.sh unsubscribe"
 
 For `nl.sh`, first argument is newsletter data path (list of emails, signatures, secret).
 
@@ -45,12 +48,11 @@ For `nl.sh`, first argument is newsletter data path (list of emails, signatures,
 ### send newsletter
 
 ```sh
-./newsletter.sh DATA_PATH SUBJECT NL_FILE
+./newsletter.sh SUBJECT NL_FILE
 ```
 
 Where
 
-- `DATA_PATH` is the path of the newsletter datas (list of emails) without trailing slash
 - `SUBJECT` subject of the letter
 - `NL_FILE` is the file containing the newsletter text
 
