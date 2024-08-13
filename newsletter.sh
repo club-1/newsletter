@@ -4,15 +4,21 @@
 # on récupère le chemin où se trouvent les données
 path="$1"
 
+# on récupère le sujet du mail à envoyer via paramètre
+subject="$2"
+
 # on récupère le contenu du mail à envoyer via paramètre
-content=$(cat "$2")
+content=$(cat "$3")
 
 nl="$USER"
+
+title=$(cat "$path/title")
+signature=$(cat "$path/signature")
 
 # on vérifie si le contenu n'est pas vide
 if test -z "$content"
 then
-    echo "file $2 is empty"
+    echo "file $3 is empty"
     exit 1
 fi
 
@@ -26,6 +32,8 @@ count=$(echo "$uniqueEmails" | wc -l)
 time=$(($count / 5))
 
 echo ''
+echo "Subject: $subject"
+echo "From: $title <$nl@club1.fr>"
 echo '========================== newsletter content =========================='
 echo "$content"
 echo '========================================================================'
@@ -53,7 +61,7 @@ printf 'sending'
 echo "$uniqueEmails" | while read addr
 do
     (echo "$content"; echo -e $footer) | qprint --encode | mailx \
-        -s "$title" \
+        -s "$subject" \
         -a "List-Unsubscribe: <mailto:$nl+unsubscribe@club1.fr>" \
         -a "Content-Transfer-Encoding: quoted-printable" \
         -r "$title <$nl@club1.fr>" \
