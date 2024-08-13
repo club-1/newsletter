@@ -1,4 +1,5 @@
 newsletters/*
 .secret
 emails
-signatures
+signature
+ambiant-lines

@@ -44,15 +44,16 @@ fi
 
 subject="[CLUB1] Newsletter"
 
-sig="\n-- \nCLUB1 - https://club1.fr\
-    \n\nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr\
-    \n\nArchive des newsletters disponible sur le site : https://club1.fr/newsletters"
+signature=$(cat "$path/signature")
+
+footer="\n-- \n$signature\
+    \n\nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
 
 printf 'sending'
 
 echo "$uniqueEmails" | while read addr
 do
-    (echo "$content"; echo -e $sig) | qprint --encode | mailx \
+    (echo "$content"; echo -e $footer) | qprint --encode | mailx \
         -s "$subject" \
         -a "List-Unsubscribe: <mailto:$nl+unsubscribe@club1.fr>" \
         -a "Content-Transfer-Encoding: quoted-printable" \
