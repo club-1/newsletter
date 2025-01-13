@@ -1,73 +1,148 @@
-#!/bin/bash -e
-# ENVOI UN EMAIL A TOUT LES EMAILS INSCRITS A LA NEWSLETTER
+#!/bin/bash
 
-# on récupère le sujet du mail à envoyer via paramètre
-subject="$1"
+help () {
+    echo 'newsletter SUBJECT [FILE]'
+    echo 'instead of provinding a FILE name for content, content can be provinded through standard input'
+}
 
-# on récupère le contenu du mail à envoyer via paramètre
-content=$(cat "$2")
+# check presence of first arg
+if test -z "$1"
+then
+    echo 'First argument should be the newsletter title'
+    exit 1
+fi
+
+
+# check presence of second arg or STD IN
+if test -n "$2"
+then
+    if test -f "$2"
+    then
+        content=$(cat "$2")
+    else
+        echo "file $2 does not exist"
+        exit 1
+    fi
+else
+    if test ! -t 0
+    then
+        content=$(cat)
+    else
+        echo 'provide a content using STD IN or a filename as second argument'
+        exit 1
+    fi
+fi
 
 # newsletter prefix is username
 nl="$USER"
 
 # newsletter folder
-path="$HOME/newsletter"
+configPath="$HOME/.config/newsletter"
+settingsFile="$configPath/settings.json"
+emailsFile="$configPath/emails"
+signatureFile="$configPath/signature.txt"
 
-title=$(cat "$path/title")
-signature=$(cat "$path/signature")
+mkdir -p "$configPath"
 
-# on vérifie si le contenu n'est pas vide
-if test -z "$content"
+echo 'reading configuration'
+
+if test ! -f "$settingsFile"
 then
-    echo "file $3 is empty"
+    echo '⚠️ no file "~/config/newsletter/settings.json" found, a default one was created.'
+    jq -n '.title = "" | .displayName = ""' >> "$settingsFile"
+fi
+
+if test ! -f "$signatureFile"
+then
+    echo '⚠️ no file "~/config/newsletter/signature.txt" found, a default one was created.'
+    touch "$signatureFile"
+fi
+
+if test ! -f "$emailsFile"
+then
+    echo '⚠️ no file "~/config/newsletter/mails" found, a default one was created.'
+    echo 'This file should contain the emails you want to send the newsletter to'
+    touch "$emailsFile"
     exit 1
 fi
 
-# on réccupère la liste des emails et on vire les doublons grâce à -u (unique)
-uniqueEmails=$(sort -u "$path/emails")
+displayName=$(cat "$settingsFile" | jq -r '.displayName // ""')
+title=$(cat "$settingsFile" | jq -r '.title // ""')
+signature=$(cat "$signatureFile")
 
-# on compte le nombre d'emails
+unsubscribe="Pour vous désinscrire, vous pouvez envoyer un email a : <$nl+unsubscribe@club1.fr>"
+
+if test -n "$signature"
+then
+    content="$content\n-- \n$signature\n\n$unsubscribe"
+else
+    content="$content\n-- \n$unsubscribe"
+fi
+
+if test -n "$displayName"
+then
+    from="$displayName <$nl@club1.fr>"
+else
+    from="$nl@club1.fr"
+fi
+
+if test -n "$title"
+then
+    subject="$title $1"
+else
+    subject="$1"
+fi
+
+# get list of emails and remove duplicates using -u (unique)
+uniqueEmails=$(sort -u "$emailsFile")
+
+# Count the number of emails
 count=$(echo "$uniqueEmails" | wc -l)
 
 # Estimate sending time, here for 0.2 sec per email
 time=$(($count / 5))
 
-echo ''
+echo
+echo -e "███████████████████████████████████\e[7m HEADER \e[27m████████████████████████████████████"
+
 echo "Subject: $subject"
-echo "From: $title <$nl@club1.fr>"
-echo '========================== newsletter content =========================='
-echo "$content"
-echo '========================================================================'
-echo ''
-echo "Do you really want to send this to $count email addresses ? (estimated sending time is $time seconds) y/[n]"
+echo "From: $from"
 
-# on lit la réponse de l'utilisateurice
-read consent
+echo -e "███████████████████████████████████\e[7m CONTENT \e[27m███████████████████████████████████"
+echo -e "$content" | fold -w 80 -s
+echo -e "███████████████████████████████████████████████████████████████████████████████"
 
-# si ce n'est pas oui, il n'y a pas de consentement et dans ce cas on n'envoie pas de newsletter
+echo
+
+echo "Do you really want to send this to $count email addresses ? y/[n]"
+echo "(estimated sending time is $time seconds)"
+
+#!/bin/bash
+while read line
+do
+    echo $line
+done
+# the next line does execute 
+read consent < /dev/tty
+
 if test "$consent" != 'y'
 then
     echo "sending aborted"
     exit 2
 fi
 
-title=$(cat "$path/title")
-signature=$(cat "$path/signature")
-
-footer="\n-- \n$signature\
-    \n\nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
-
 printf 'sending'
 
 echo "$uniqueEmails" | while read addr
 do
-    (echo "$content"; echo -e $footer) | qprint --encode | mailx \
+    (echo -e "$content") | qprint --encode | mailx \
         -s "$subject" \
         -a "List-Unsubscribe: <mailto:$nl+unsubscribe@club1.fr>" \
         -a "Content-Transfer-Encoding: quoted-printable" \
-        -r "$title <$nl@club1.fr>" \
+        -r "$from" \
         -- "$addr"
     printf '.'
     sleep 0.2
 done
 echo 'done !'
+exit 0

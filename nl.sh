@@ -7,20 +7,20 @@ checkAlreadySubscribed () {
         body="votre email est deja inscrit a :\
         \n $title\
         \nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
-        printf "$body$footer" | mailx -s "votre email est deja inscrit" -a "$headerInReplyTo" -r "$title <$nl+subscribe@club1.fr>" -- "$emailFrom"
+        printf "$body$footer" | mailx -s "votre email est deja inscrit" -a "$headerInReplyTo" -r "$displayName <$nl+subscribe@club1.fr>" -- "$emailFrom"
         exit
     fi
 }
 
 # génère un identifiant de la forme `<NLNAME-XXXXX@club1.fr>` avec le hash basé sur le secret du serveur
 confirmID () {
-    if test ! -s "$path/.secret"
+    if test ! -s "$configPath/.secret"
     then
-        head -c 30 /dev/urandom | base64 > "$path/.secret"
-        touch "$path/.secret"
-        chmod 600 "$path/.secret"
+        head -c 30 /dev/urandom | base64 > "$configPath/.secret"
+        touch "$configPath/.secret"
+        chmod 600 "$configPath/.secret"
     fi
-    secret=$(cat "$path/.secret")
+    secret=$(cat "$configPath/.secret")
     hash=$(echo -n "$emailFrom$secret" | sha256sum | cut -b 1-16)
     echo "<$nl-${hash}@club1.fr>"
 }
@@ -30,8 +30,8 @@ subscribe () {
 
     headerMessageID="Message-ID: $(confirmID)"
     body="Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir la newsletter\
-    \nVous recevrez un email de confirmation"
-    printf "$body$footer" | mailx -s "inscription" -a "Reply-to: $nl+confirm@club1.fr" -a "$headerInReplyTo" -a "$headerMessageID" -r "$title <$nl+subscribe@club1.fr>" -- "$emailFrom"
+    \nVous recevrez un email de confirmation."
+    printf "$body$footer" | mailx -s "inscription" -a "Reply-to: $nl+confirm@club1.fr" -a "$headerInReplyTo" -a "$headerMessageID" -r "$displayName <$nl+subscribe@club1.fr>" -- "$emailFrom"
 }
 
 unsubscribe () {
@@ -43,9 +43,9 @@ unsubscribe () {
         body="Votre email $emailFrom a bien ete retire de la newsletter :\
         \n\n$title\
         \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a $nl+subscribe@club1.fr a tout moment."
-        printf "$body$footer"  | mailx -s "Vous avez bien ete retire de la newsletter" -a "$headerInReplyTo" -r "$title <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
+        printf "$body$footer"  | mailx -s "Vous avez bien ete retire de la newsletter" -a "$headerInReplyTo" -r "$displayName <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
     else
-        echo "Votre email $emailFrom n'est pas incrit a : \n$title$footer" | mailx -s "Votre email n est pas inscrit" -a "$headerInReplyTo" -r "$title <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
+        echo "Votre email $emailFrom n'est pas incrit a : \n$title$footer" | mailx -s "Votre email n est pas inscrit" -a "$headerInReplyTo" -r "$displayName <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
     fi
 }
 
@@ -60,9 +60,9 @@ confirm () {
         echo "$emailFrom" >> "$emails"
         body="C'est bon!\nVotre email $emailFrom a bien ete ajoute.\
         \nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
-        echo "$body$footer" | mailx -s "Confirmation d'inscription" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl+confirm@club1.fr>" -- "$emailFrom"
+        echo "$body$footer" | mailx -s "Confirmation d'inscription" -a "$headerInReplyTo" -r "$displayName <$nl+confirm@club1.fr>" -- "$emailFrom"
     else
-        printf "Erreur\nAdresse de provenance : $emailFrom ne correspond pas.$footer" | mailx -s "Erreur lors de la confirmation" -a "$headerInReplyTo" -r "Newsletter CLUB1 <$nl+confirm@club1.fr>" -- "$emailFrom"
+        printf "Erreur\nAdresse de provenance : $emailFrom ne correspond pas.$footer" | mailx -s "Erreur lors de la confirmation" -a "$headerInReplyTo" -r "$displayName <$nl+confirm@club1.fr>" -- "$emailFrom"
     fi
 }
 
@@ -73,7 +73,7 @@ mail=$(cat)
 subcmd=$1
 
 # newsletter folder
-path="$HOME/newsletter"
+configPath="$HOME/.config/newsletter"
 
 # prefix is username
 nl="$USER"
@@ -95,18 +95,20 @@ emailMessageId=$(echo "$mail" | grep -Eoi -m 1 "^Message-ID: .*" | grep -Eo "<.*
 headerInReplyTo="In-Reply-To: $emailMessageId"
 
 # chemin du fichier contenant les emails
-emails="$path/emails"
+emails="$configPath/emails"
 
 # indique si l'adresse email reçue existe déjà dans le fichiers des adresses
 exist=$(grep -c -x -m 1 "$emailFrom" "$emails" || test $? = 1)
 
-# read the title of the newsletter
-title=$(cat "$path/title")
+# read the title of the newsletter and the from display name
+settingsFile="$configPath/settings.json"
+title=$(cat "$settingsFile" | jq -r '.title // ""')
+displayName=$(cat "$settingsFile" | jq -r '.displayName // ""')
 
 # charge une signature depuis le fichier
-ambiant=$(shuf -n 1 "$path/ambiant-lines")
-signature=$(cat "$path/signature")
-footer="\n\n$ambiant\n\n-- \n$signature"
+signatureFile="$configPath/signature.txt"
+signature=$(cat "$signatureFile")
+footer="\n-- \n$signature"
 
 # lance la sous commande correspondante
 case $subcmd in
