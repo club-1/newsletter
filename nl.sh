@@ -72,8 +72,21 @@ mail=$(cat)
 # on associe le premier argument à la sous commande
 subcmd=$1
 
-# newsletter folder
-configPath="$HOME/.config/newsletter"
+# check presence of second argument
+if test -n "$2"
+then
+    # overide the default config path
+    configPath=$2
+else
+    # use default config path
+    configPath="$HOME/.config/newsletter"
+fi
+
+# if the config folder does not exist, abort here
+if test ! -d "$configPath"
+then
+    exit 2
+fi
 
 # prefix is username
 nl="$USER"
