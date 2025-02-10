@@ -1,20 +1,23 @@
 # CLUB1 Newsletter
 
-A very simple newsletter for CLUB1 server
+A very simple newsletter for CLUB1 server members.
+This was first only used for the club official newsletter and later extended as a service for members.
+
+The design strategy of this piece of code is to take advantage of Postfix `.forward` files combined with recipient delimiter. 
+
+**Features:**
 
 - subscribe and unsubscribe using emails
     - email confirmation at subscription
-- store emails in a file, separated by new lines
+- store subscribers email addresses in a file, separated by new lines
 - no web interface
 
-## todo
 
-- [x] ask for subscription after unsubscription
-- [x] add list unsubscribe header
-- [x] quoted printable
+## User setup
 
 
-## Setup
+
+### Configuration folder
 
 The configuration is stored under this folder:
 
@@ -41,12 +44,16 @@ Two fields are allowed: `title` and `displayName`.
 }
 ```
 
+### Forwarding
+
 User home directory must contain 3 files:
 
     FILE                      CONTENT
-    .forward+subscribe        | "/var/tmp/nl/nl.sh subscribe"
-    .forward+confirm          | "/var/tmp/nl/nl.sh confirm"
-    .forward+unsubscribe      | "/var/tmp/nl/nl.sh unsubscribe"
+    .forward+subscribe        | "SCRIPT_PATH subscribe"
+    .forward+confirm          | "SCRIPT_PATH confirm"
+    .forward+unsubscribe      | "SCRIPT_PATH unsubscribe"
+
+Where `SCRIPT_PATH` is the full absolute path to the `nl.sh` script. For example: `/usr/local/sbin/nl.sh`.
 
 ## Usage
 
@@ -81,5 +88,12 @@ The `nl.sh` can take two additionnal optionnal argument that are used to overrid
 
     nl.sh SUB_COMMAND [CONFIG_PATH] [PREFIX]
 
-- `CONFIG_PATH` is a path to the config folder. That must contain all config files as described in [setup](#setup).
+- `CONFIG_PATH` is a path to the config folder. That must contain all config files as described in [setup](#user-setup).
 - `PREFIX` is the string that will be used in the email address like this: `PREFIX+subscribe@club1.fr`
+
+
+## todo
+
+- [x] ask for subscription after unsubscription
+- [x] add list unsubscribe header
+- [x] quoted printable
