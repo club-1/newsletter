@@ -75,8 +75,8 @@ subcmd=$1
 # check presence of second argument
 if test -n "$2"
 then
-    # overide the default config path
-    configPath=$2
+    # override the default config path
+    configPath="$2"
 else
     # use default config path
     configPath="$HOME/.config/newsletter"
@@ -88,8 +88,17 @@ then
     exit 2
 fi
 
-# prefix is username
-nl="$USER"
+
+# check presence of third argument
+if test -n "$3"
+then
+    # use it as prefix
+    nl="$3"
+else
+    # prefix is username
+    nl="$USER"
+fi
+
 
 # check if email have Autosubmitted Header, if so, abort mission and prevent daemon to send any error email to avoid infinite bouncing
 autoSubmitted=$(echo "$mail" | grep -cEi -m 1 "^Auto-Submitted:" || test $? = 1)
@@ -118,10 +127,15 @@ settingsFile="$configPath/settings.json"
 title=$(cat "$settingsFile" | jq -r '.title // ""')
 displayName=$(cat "$settingsFile" | jq -r '.displayName // ""')
 
-# charge une signature depuis le fichier
+# load a signature from the corresponding file
 signatureFile="$configPath/signature.txt"
-signature=$(cat "$signatureFile")
-footer="\n-- \n$signature"
+if test -f "$signatureFile"
+then
+    signature=$(cat "$signatureFile")
+    footer="\n-- \n$signature"
+else
+    footer=''
+fi
 
 # lance la sous commande correspondante
 case $subcmd in
