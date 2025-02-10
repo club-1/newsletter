@@ -22,14 +22,14 @@ The configuration is stored under this folder:
 
     emails              must be readable and writable
     .secret             must be readable
-    signature           must be readable
+    signature.txt       must be readable
     settings.json       must be readable
 
 `emails` will be filled with each email that subscribed to the newsletter.
 
 Fill `.secret` with a long sentence.
 
-Fill `signature` with text that need to appear at the end of each email. This will be placed after a `-- ` signature separator.
+Fill `signature.txt` with text that need to appear at the end of each email. This will be placed after a `-- ` signature separator.
 
 Settings is a JSON file that contain some metada about the newsletter.
 Two fields are allowed: `title` and `displayName`.
@@ -68,3 +68,18 @@ If you define a `displayName` in `settings.json`, it will be displayed in the __
     DISPLAY_NAME <USER@club1.fr>
 
 If a `title` is set in `settings.json` it will be used as a prefix in each newsletter subjects (even during subscription and unsubscription).
+
+
+
+## Advanced setup
+
+This advanced setup is mosty designed for the purpose of a newsletter not related to an user on the server.
+
+### Optionnal arguments
+
+The `nl.sh` can take two additionnal optionnal argument that are used to override config path and email prefix.
+
+    nl.sh SUB_COMMAND [CONFIG_PATH] [PREFIX]
+
+- `CONFIG_PATH` is a path to the config folder. That must contain all config files as described in [setup](#setup).
+- `PREFIX` is the string that will be used in the email address like this: `PREFIX+subscribe@club1.fr`
