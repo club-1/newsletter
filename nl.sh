@@ -72,32 +72,10 @@ mail=$(cat)
 # on associe le premier argument à la sous commande
 subcmd=$1
 
-# check presence of second argument
-if test -n "$2"
-then
-    # override the default config path
-    configPath="$2"
-else
-    # use default config path
-    configPath="$HOME/.config/newsletter"
-fi
+configPath="$HOME/.config/newsletter"
 
-# if the config folder does not exist, abort here
-if test ! -d "$configPath"
-then
-    exit 2
-fi
-
-
-# check presence of third argument
-if test -n "$3"
-then
-    # use it as prefix
-    nl="$3"
-else
-    # prefix is username
-    nl="$USER"
-fi
+# prefix is username
+nl="$USER"
 
 
 # check if email have Autosubmitted Header, if so, abort mission and prevent daemon to send any error email to avoid infinite bouncing
