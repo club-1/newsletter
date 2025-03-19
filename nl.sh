@@ -4,10 +4,9 @@
 checkAlreadySubscribed () {
     if test $exist != 0
     then
-        body="votre email est deja inscrit a :\
-        \n $title\
+        body="votre email est deja inscrit à $extendedTitle.\
         \nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
-        printf "$body$footer" | mailx -s "votre email est deja inscrit" -a "$headerInReplyTo" -r "$displayName <$nl+subscribe@club1.fr>" -- "$emailFrom"
+        printf "$body$footer" | mailx -s "votre email est deja inscrit à $extendedTitle" -a "$headerInReplyTo" -r "$displayName <$nl+subscribe@club1.fr>" -- "$emailFrom"
         exit
     fi
 }
@@ -29,9 +28,9 @@ subscribe () {
     checkAlreadySubscribed
 
     headerMessageID="Message-ID: $(confirmID)"
-    body="Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir la newsletter\
+    body="Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir $extendedTitle.\
     \nVous recevrez un email de confirmation."
-    printf "$body$footer" | mailx -s "inscription" -a "Reply-to: $nl+confirm@club1.fr" -a "$headerInReplyTo" -a "$headerMessageID" -r "$displayName <$nl+subscribe@club1.fr>" -- "$emailFrom"
+    printf "$body$footer" | mailx -s "inscription à $extendedTitle" -a "Reply-to: $nl+confirm@club1.fr" -a "$headerInReplyTo" -a "$headerMessageID" -r "$displayName <$nl+subscribe@club1.fr>" -- "$emailFrom"
 }
 
 unsubscribe () {
@@ -40,12 +39,11 @@ unsubscribe () {
     then
         tmpemails=$(sed "/^$emailFrom\$/d" "$emails")
         echo "$tmpemails" > "$emails"
-        body="Votre email $emailFrom a bien ete retire de la newsletter :\
-        \n\n$title\
+        body="Votre email $emailFrom a bien ete retire des abonnements à $extendedTitle.\
         \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a $nl+subscribe@club1.fr a tout moment."
-        printf "$body$footer"  | mailx -s "Vous avez bien ete retire de la newsletter" -a "$headerInReplyTo" -r "$displayName <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
+        printf "$body$footer"  | mailx -s "Vous avez bien ete retire de $extendedTitle" -a "$headerInReplyTo" -r "$displayName <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
     else
-        echo "Votre email $emailFrom n'est pas incrit a : \n$title$footer" | mailx -s "Votre email n est pas inscrit" -a "$headerInReplyTo" -r "$displayName <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
+        echo "Votre email $emailFrom n'est pas incrit à $extendedTitle.$footer" | mailx -s "Votre email n'est pas inscrit à $extendedTitle" -a "$headerInReplyTo" -r "$displayName <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
     fi
 }
 
@@ -60,23 +58,40 @@ confirm () {
         echo "$emailFrom" >> "$emails"
         body="C'est bon!\nVotre email $emailFrom a bien ete ajoute.\
         \nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
-        echo "$body$footer" | mailx -s "Confirmation d'inscription" -a "$headerInReplyTo" -r "$displayName <$nl+confirm@club1.fr>" -- "$emailFrom"
+        echo "$body$footer" | mailx -s "Confirmation d'inscription à $extendedTitle" -a "$headerInReplyTo" -r "$displayName <$nl+confirm@club1.fr>" -- "$emailFrom"
     else
-        printf "Erreur\nAdresse de provenance : $emailFrom ne correspond pas.$footer" | mailx -s "Erreur lors de la confirmation" -a "$headerInReplyTo" -r "$displayName <$nl+confirm@club1.fr>" -- "$emailFrom"
+        printf "Erreur\nAdresse de provenance : $emailFrom ne correspond pas.$footer" | mailx -s "Erreur lors de la confirmation d'inscription à $extendedTitle" -a "$headerInReplyTo" -r "$displayName <$nl+confirm@club1.fr>" -- "$emailFrom"
     fi
 }
 
-# stocke stdin (standard input) dans une variable
+# Default config path location
+configPath="$HOME/.config/newsletter"
+# store stdin (standard input)
 mail=$(cat)
 
-# on associe le premier argument à la sous commande
+while getopts 'c:' opt
+do
+    case $opt in
+        c)
+            # overide config path
+            configPath="$OPTARG"
+        ;;
+    esac
+done
+shift "$(($OPTIND -1))"
+
+# if the config folder does not exist, abort here
+if test ! -d "$configPath"
+then
+    echo "config path '$configPath' is not a valid folder."
+    exit 2
+fi
+
+# associate first arg with sub-command
 subcmd=$1
 
-configPath="$HOME/.config/newsletter"
-
-# prefix is username
+# email name is username
 nl="$USER"
-
 
 # check if email have Autosubmitted Header, if so, abort mission and prevent daemon to send any error email to avoid infinite bouncing
 autoSubmitted=$(echo "$mail" | grep -cEi -m 1 "^Auto-Submitted:" || test $? = 1)
@@ -104,6 +119,14 @@ exist=$(grep -c -x -m 1 "$emailFrom" "$emails" || test $? = 1)
 settingsFile="$configPath/settings.json"
 title=$(cat "$settingsFile" | jq -r '.title // ""')
 displayName=$(cat "$settingsFile" | jq -r '.displayName // ""')
+
+# define extended title: how the newsletter is called in the email
+if test -n "$title"
+then
+    extendedTitle="la newsletter [$title]"
+else
+    extendedTitle="la newsletter de $USER"
+fi
 
 # load a signature from the corresponding file
 signatureFile="$configPath/signature.txt"

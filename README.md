@@ -44,6 +44,8 @@ Two fields are allowed: `title` and `displayName`.
 }
 ```
 
+Where `title` is the official name of the newsletter. It will be used during sign up phase. And `displayName` is the email associated display name in the `From` field.
+
 ### Forwarding
 
 User home directory must contain 3 files:
@@ -55,45 +57,35 @@ User home directory must contain 3 files:
 
 Where `SCRIPT_PATH` is the full absolute path to the `nl.sh` script. For example: `/usr/local/sbin/nl.sh`.
 
+#### Override config path
+
+The `nl.sh` can take an optionnal argument that is used to override config path.
+
+    nl.sh [-c CONFIG_PATH] SUB_COMMAND
+
+`CONFIG_PATH` is a path to the config folder. That must contain all config files as described in [setup](#user-setup).
+
+
+
 ## Usage
 
 ### send newsletter
 
 ```sh
-./newsletter.sh SUBJECT NL_FILE
+./newsletter.sh [-c CONFIG_PATH] [-n EMAIL_NAME] SUBJECT [CONTENT_FILE]
 ```
 
-Where
+Where:
 
-- `SUBJECT` subject of the letter
-- `NL_FILE` is the file containing the newsletter text
+- `CONFIG_PATH` is the folder containing the config
+- `EMAIL_NAME` is the name before `@club1.fr`
+- `SUBJECT` is the subject of the letter
+- `CONTENT_FILE` is the file containing the newsletter text. An alternative method is to transmit the content through STDIN using a pipe.
 
-This will send a newsletter to every mail addresses listed in the `emails` file.
-The __From address__  will be `USER@club1.fr`.
-If you define a `displayName` in `settings.json`, it will be displayed in the __from__ like this:
+This will send a newsletter to every mail addresses listed in the `emails` file in config folder.
+The default __From address__  will use your club1 username like this `USER@club1.fr`, but can be overidden using `-c` argument.
+If you define a `displayName` in `settings.json`, it will be displayed in the like this:
 
     DISPLAY_NAME <USER@club1.fr>
 
-If a `title` is set in `settings.json` it will be used as a prefix in each newsletter subjects (even during subscription and unsubscription).
-
-
-
-## Advanced setup
-
-This advanced setup is mosty designed for the purpose of a newsletter not related to an user on the server.
-
-### Optionnal arguments
-
-The `nl.sh` can take two additionnal optionnal argument that are used to override config path and email prefix.
-
-    nl.sh SUB_COMMAND [CONFIG_PATH] [PREFIX]
-
-- `CONFIG_PATH` is a path to the config folder. That must contain all config files as described in [setup](#user-setup).
-- `PREFIX` is the string that will be used in the email address like this: `PREFIX+subscribe@club1.fr`
-
-
-## todo
-
-- [x] ask for subscription after unsubscription
-- [x] add list unsubscribe header
-- [x] quoted printable
+If a `title` is set in `settings.json` it will be used as a prefix in each newsletter subjects under square brackets (even during subscription and unsubscription).
