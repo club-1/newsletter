@@ -48,47 +48,47 @@ subscribe () {
     checkAlreadySubscribed
 
     sendEmail \
-        "inscription à $extendedTitle" \
-        "Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir $extendedTitle.\
-        \nVous recevrez un email de confirmation." \
+        "Inscription à $extendedTitle" \
+        "Veuillez repondre a cet email pour confirmer que vous souhaitez recevoir $extendedTitle.\
+        \nVous recevrez un email de confirmation. (n'oubliez pas vérifier vos courriers indésirables !)" \
         -a "Message-Id: $(confirmID)" -a "Reply-to: $nl+confirm@club1.fr"
 }
 
 unsubscribe () {
-    # Si elle existe, on la supprime. Sinon on envoie un email indiquant qu'elle n'y était pas
+    # If it exist, we delete it. Otherwise we send an email indicating the mistake
     if test $exist = 1
     then
         tmpemails=$(sed "/^$emailFrom\$/d" "$emails")
         echo "$tmpemails" > "$emails"
         sendEmail \
-            "Vous avez bien ete retire de $extendedTitle" \
-            "Votre email '$emailFrom' a bien ete retire des abonnements à $extendedTitle.\
-            \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a $nl+subscribe@club1.fr a tout moment."
+            "Vous avez bien été retiré de $extendedTitle" \
+            "Votre email <$emailFrom> a bien été retiré des abonnements à $extendedTitle.\
+            \n\nPour vous réinscrire, il vous suffit d'envoyer un email à <$nl+subscribe@club1.fr> à tout moment."
     else
         sendEmail \
             "Votre email n'est pas inscrit à $extendedTitle" \
-            "On ne peut donc pas le retirer. Si le problème persiste, veuillez contacter <$nl@club1.fr>"
-
+            "On ne peut donc pas le retirer. Si le problème persiste, veuillez contacter <postmaster@club1.fr>"
     fi
 }
 
 confirm () {
     checkAlreadySubscribed
 
-    # on réccupère le header In-Reply-To
+    # get the In-Reply-To header
     emailInReplyTo=$(echo "$mail" | grep -Eoi -m 1 "^In-Reply-To: .*" | grep -Eo "<.*>")
 
+    # comparaison  against the localy generated ID
     if test $emailInReplyTo = $(confirmID)
     then
         echo "$emailFrom" >> "$emails"
         sendEmail \
             "Confirmation d'inscription à $extendedTitle" \
-            "C'est bon!\nVotre email $emailFrom a bien ete ajoute. \
-            \nPour vous desinscrire, vous pouvez envoyer un email a : <$nl+unsubscribe@club1.fr>"
+            "C'est bon!\nVotre email <$emailFrom> a bien été ajouté. \
+            \nPour vous désinscrire, vous pouvez envoyer un email a : <$nl+unsubscribe@club1.fr>"
     else
         sendEmail \
             "Erreur lors de la confirmation d'inscription à $extendedTitle" \
-            "Erreur\nAdresse de provenance : $emailFrom ne correspond pas."
+            "L'adresse de provenance : <$emailFrom> ne correspond pas."
     fi
 }
 
