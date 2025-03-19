@@ -83,7 +83,7 @@ Where:
 - `CONTENT_FILE` is the file containing the newsletter text. An alternative method is to transmit the content through STDIN using a pipe.
 
 This will send a newsletter to every mail addresses listed in the `emails` file in config folder.
-The default __From address__  will use your club1 username like this `USER@club1.fr`, but can be overidden using `-c` argument.
+The default __From address__  will use your club1 username like this `USER@club1.fr`, but can be overidden using `-n` argument.
 If you define a `displayName` in `settings.json`, it will be displayed in the like this:
 
     DISPLAY_NAME <USER@club1.fr>
