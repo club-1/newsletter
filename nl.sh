@@ -1,6 +1,6 @@
 #!/bin/sh -e
 
-# si l'adresse existe deja, on arrête la et on renvoie un email expliquant ca
+# If the email address is aleary listed, we stop here and send an email
 checkAlreadySubscribed () {
     if test $exist != 0
     then
@@ -11,7 +11,7 @@ checkAlreadySubscribed () {
     fi
 }
 
-# génère un identifiant de la forme `<NLNAME-XXXXX@club1.fr>` avec le hash basé sur le secret du serveur
+# generate an identifier like `<NLNAME-XXXXX@club1.fr>` thanks to a hash based on the `.secret` config file
 confirmID () {
     if test ! -s "$configPath/.secret"
     then
@@ -101,18 +101,19 @@ then
     exit 0
 fi
 
-# cherche la première ligne qui contient `From: ` et la stocke dans une variable
+# look for first line containing `From: ` and store it in var
 from=$(echo "$mail" | grep -Ei -m 1 "^From: ")
 emailFrom=$(echo "$from" | grep -E -m 1 -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b")
 
-# on réccupère le message ID via le Header correspondant
+# get the message ID thanks to the associated mail header
 emailMessageId=$(echo "$mail" | grep -Eoi -m 1 "^Message-ID: .*" | grep -Eo "<.*>")
 headerInReplyTo="In-Reply-To: $emailMessageId"
 
-# chemin du fichier contenant les emails
+# path to file containing subscribed emails
 emails="$configPath/emails"
 
-# indique si l'adresse email reçue existe déjà dans le fichiers des adresses
+# check if the from address is listed in the subscribed emails file.
+# `0` is stored if not listed. `1` is stored if listed.
 exist=$(grep -c -x -m 1 "$emailFrom" "$emails" || test $? = 1)
 
 # read the title of the newsletter and the from display name
@@ -138,7 +139,7 @@ else
     footer=''
 fi
 
-# lance la sous commande correspondante
+# lauch matching sub-command
 case $subcmd in
     'subscribe') subscribe;;
     'unsubscribe') unsubscribe;;

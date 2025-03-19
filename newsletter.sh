@@ -127,10 +127,10 @@ fi
 # get list of emails and remove duplicates using -u (unique)
 uniqueEmails=$(sort -u "$emailsFile")
 
-# Count the number of emails
+# count the number of emails
 count=$(echo "$uniqueEmails" | wc -l)
 
-# Estimate sending time, here for 0.2 sec per email
+# estimate sending time, here for 0.2 sec per email
 time=$(($count / 5))
 
 echo
