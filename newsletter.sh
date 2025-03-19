@@ -5,6 +5,41 @@ help () {
     echo 'instead of provinding a FILE name for content, content can be provinded through standard input'
 }
 
+
+# default newsletter email name is username
+nl="$USER"
+# default config path location
+configPath="$HOME/.config/newsletter"
+
+while getopts 'n:c:' opt
+do
+    case $opt in
+        c)
+            # overide config path
+            configPath="$OPTARG"
+        ;;
+        n)
+            # overide newsletter email name
+            nl="$OPTARG"
+        ;;
+    esac
+done
+shift "$(($OPTIND -1))"
+
+# if the config folder does not exist, abort here
+if test ! -d "$configPath"
+then
+    echo "config path '$configPath' is not a valid folder."
+    exit 2
+fi
+
+# if the newsletter name is not valid, abort here
+if ! $(expr "$nl" : '^[a-z0-9-]\{3,17\}$' > /dev/null)
+then
+    echo "newsletter email '$nl@club1.fr' is not valid"
+    exit 2
+fi
+
 # check presence of first arg
 if test -z "$1"
 then
@@ -28,16 +63,12 @@ else
     then
         content=$(cat)
     else
-        echo 'provide a content using STD IN or a filename as second argument'
+        echo 'No content found. Provide a filename as second argument or pipe a text through STDIN'
         exit 1
     fi
 fi
 
-# newsletter prefix is username
-nl="$USER"
 
-# newsletter folder
-configPath="$HOME/.config/newsletter"
 settingsFile="$configPath/settings.json"
 emailsFile="$configPath/emails"
 signatureFile="$configPath/signature.txt"
@@ -88,7 +119,7 @@ fi
 
 if test -n "$title"
 then
-    subject="$title $1"
+    subject="[$title] $1"
 else
     subject="$1"
 fi
@@ -117,13 +148,9 @@ echo
 echo "Do you really want to send this to $count email addresses ? y/[n]"
 echo "(estimated sending time is $time seconds)"
 
-#!/bin/bash
-while read line
-do
-    echo $line
-done
-# the next line does execute 
-read consent < /dev/tty
+# read user input for consent
+# inspired by first method from answer <https://stackoverflow.com/a/54396662>
+read -rsn1 consent <&2
 
 if test "$consent" != 'y'
 then
