@@ -162,7 +162,7 @@ printf 'sending'
 
 echo "$uniqueEmails" | while read addr
 do
-    (echo -e "$content") | qprint --encode | mailx \
+    echo -e "$content" | qprint --encode | mailx \
         -s "$subject" \
         -a "List-Unsubscribe: <mailto:$nl+unsubscribe@club1.fr>" \
         -a "Content-Transfer-Encoding: quoted-printable" \

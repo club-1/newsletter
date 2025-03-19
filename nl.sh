@@ -1,12 +1,32 @@
-#!/bin/sh -e
+#!/bin/bash -e
+
+# basic email template that setup headers and add footer
+# sendEmail SUBJECT BODY [CUSTOM_MAILX_ARGS...]
+sendEmail() {
+    local subject="$1"
+    local body="$2"
+    shift 2
+
+    local content="$body$footer"
+    echo -e "$content" | qprint --encode | mailx \
+        -s "$subject" \
+        -a "List-Unsubscribe: <mailto:$nl+unsubscribe@club1.fr>" \
+        -a 'Content-Transfer-Encoding: quoted-printable' \
+        -a 'Content-Type: text/plain; charset=UTF-8' \
+        -a "In-Reply-To: $emailMessageId" \
+        "$@" \
+        -r "$displayName <$nl@club1.fr>" \
+        -- "$emailFrom"
+}
+
 
 # If the email address is aleary listed, we stop here and send an email
 checkAlreadySubscribed () {
     if test $exist != 0
     then
-        body="votre email est deja inscrit à $extendedTitle.\
-        \nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
-        printf "$body$footer" | mailx -s "votre email est deja inscrit à $extendedTitle" -a "$headerInReplyTo" -r "$displayName <$nl+subscribe@club1.fr>" -- "$emailFrom"
+        sendEmail \
+            "Votre email est déjà inscrit à $extendedTitle" \
+            "Pour vous désinscrire, vous pouvez envoyer un email à : $nl+unsubscribe@club1.fr"
         exit
     fi
 }
@@ -27,10 +47,11 @@ confirmID () {
 subscribe () {
     checkAlreadySubscribed
 
-    headerMessageID="Message-ID: $(confirmID)"
-    body="Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir $extendedTitle.\
-    \nVous recevrez un email de confirmation."
-    printf "$body$footer" | mailx -s "inscription à $extendedTitle" -a "Reply-to: $nl+confirm@club1.fr" -a "$headerInReplyTo" -a "$headerMessageID" -r "$displayName <$nl+subscribe@club1.fr>" -- "$emailFrom"
+    sendEmail \
+        "inscription à $extendedTitle" \
+        "Veuillez repondre a ce mail pour confirmer que vous souhaitez recevoir $extendedTitle.\
+        \nVous recevrez un email de confirmation." \
+        -a "Message-Id: $(confirmID)" -a "Reply-to: $nl+confirm@club1.fr"
 }
 
 unsubscribe () {
@@ -39,11 +60,15 @@ unsubscribe () {
     then
         tmpemails=$(sed "/^$emailFrom\$/d" "$emails")
         echo "$tmpemails" > "$emails"
-        body="Votre email $emailFrom a bien ete retire des abonnements à $extendedTitle.\
-        \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a $nl+subscribe@club1.fr a tout moment."
-        printf "$body$footer"  | mailx -s "Vous avez bien ete retire de $extendedTitle" -a "$headerInReplyTo" -r "$displayName <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
+        sendEmail \
+            "Vous avez bien ete retire de $extendedTitle" \
+            "Votre email '$emailFrom' a bien ete retire des abonnements à $extendedTitle.\
+            \n\nPour vous re-inscrire, il vous suffit d'envoyer un email a $nl+subscribe@club1.fr a tout moment."
     else
-        echo "Votre email $emailFrom n'est pas incrit à $extendedTitle.$footer" | mailx -s "Votre email n'est pas inscrit à $extendedTitle" -a "$headerInReplyTo" -r "$displayName <$nl+unsubscribe@club1.fr>" -- "$emailFrom"
+        sendEmail \
+            "Votre email n'est pas inscrit à $extendedTitle" \
+            "On ne peut donc pas le retirer. Si le problème persiste, veuillez contacter <$nl@club1.fr>"
+
     fi
 }
 
@@ -56,11 +81,14 @@ confirm () {
     if test $emailInReplyTo = $(confirmID)
     then
         echo "$emailFrom" >> "$emails"
-        body="C'est bon!\nVotre email $emailFrom a bien ete ajoute.\
-        \nPour vous desinscrire, vous pouvez envoyer un email a : $nl+unsubscribe@club1.fr"
-        echo "$body$footer" | mailx -s "Confirmation d'inscription à $extendedTitle" -a "$headerInReplyTo" -r "$displayName <$nl+confirm@club1.fr>" -- "$emailFrom"
+        sendEmail \
+            "Confirmation d'inscription à $extendedTitle" \
+            "C'est bon!\nVotre email $emailFrom a bien ete ajoute. \
+            \nPour vous desinscrire, vous pouvez envoyer un email a : <$nl+unsubscribe@club1.fr>"
     else
-        printf "Erreur\nAdresse de provenance : $emailFrom ne correspond pas.$footer" | mailx -s "Erreur lors de la confirmation d'inscription à $extendedTitle" -a "$headerInReplyTo" -r "$displayName <$nl+confirm@club1.fr>" -- "$emailFrom"
+        sendEmail \
+            "Erreur lors de la confirmation d'inscription à $extendedTitle" \
+            "Erreur\nAdresse de provenance : $emailFrom ne correspond pas."
     fi
 }
 
@@ -106,8 +134,7 @@ from=$(echo "$mail" | grep -Ei -m 1 "^From: ")
 emailFrom=$(echo "$from" | grep -E -m 1 -o "\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,6}\b")
 
 # get the message ID thanks to the associated mail header
-emailMessageId=$(echo "$mail" | grep -Eoi -m 1 "^Message-ID: .*" | grep -Eo "<.*>")
-headerInReplyTo="In-Reply-To: $emailMessageId"
+emailMessageId=$(echo "$mail" | grep -Eoi -m 1 "^Message-Id: .*" | grep -Eo "<.*>")
 
 # path to file containing subscribed emails
 emails="$configPath/emails"
