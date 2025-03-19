@@ -121,12 +121,13 @@ subcmd=$1
 # email name is username
 nl="$USER"
 
-# check if email have Autosubmitted Header, if so, abort mission and prevent daemon to send any error email to avoid infinite bouncing
+# check if email have Autosubmitted Header
+# if so, abort mission and prevent daemon to send any error email to avoid infinite bouncing
 autoSubmitted=$(echo "$mail" | grep -cEi -m 1 "^Auto-Submitted:" || test $? = 1)
 
 if test $autoSubmitted = 1
 then
-    exit 0
+    exit 1
 fi
 
 # look for first line containing `From: ` and store it in var

@@ -1,8 +1,37 @@
 #!/bin/bash
 
+# print the very cool header
+header() {
+    echo '      __    __          __   /   __  _/_  _/_    __    __'
+    echo '    /   ) /___)| /| /  (_ ` /  /___) /    /    /___) /   `'
+    echo '___/___/_(___ _|/_|/__(__)_/__(___ _(_ __(_ __(___ _/____v2.0___'
+    echo
+}
+
 help () {
-    echo 'newsletter SUBJECT [FILE]'
-    echo 'instead of provinding a FILE name for content, content can be provinded through standard input'
+    header
+    cat <<'EOF'
+This will send a newsletter to every mail addresses listed in the emails
+file in config folder.
+
+Usage: newsletter [-c CONFIG_PATH] [-n EMAIL_NAME] SUBJECT [CONTENT_FILE]
+
+  -c CONFIG_PATH    override the default config path
+  -n EMAIL_NAME     override the email name
+  -h                print this help
+
+SUBJECT: the main subject of your newsletter.
+(Use quotes for multi words name ex: 'La grande fête du morbier')
+
+CONTENT_FILE: path to the file that store the content of your newsletter.
+
+Alternatively, you can pipe the content through STDIN.
+
+The default From address will use your club1 username like this:
+USER@club1.fr, but can be overidden using -c argument.
+
+Git repo: <https://github.com/club-1/newsletter>
+EOF
 }
 
 
@@ -11,7 +40,7 @@ nl="$USER"
 # default config path location
 configPath="$HOME/.config/newsletter"
 
-while getopts 'n:c:' opt
+while getopts 'n:c:h' opt
 do
     case $opt in
         c)
@@ -21,6 +50,14 @@ do
         n)
             # overide newsletter email name
             nl="$OPTARG"
+        ;;
+        h)
+            help
+            exit 0
+        ;;
+        *)
+            help
+            exit 2
         ;;
     esac
 done
@@ -44,7 +81,7 @@ fi
 if test -z "$1"
 then
     echo 'First argument should be the newsletter title'
-    exit 1
+    exit 2
 fi
 
 
@@ -56,7 +93,7 @@ then
         content=$(cat "$2")
     else
         echo "file $2 does not exist"
-        exit 1
+        exit 2
     fi
 else
     if test ! -t 0
@@ -64,7 +101,7 @@ else
         content=$(cat)
     else
         echo 'No content found. Provide a filename as second argument or pipe a text through STDIN'
-        exit 1
+        exit 2
     fi
 fi
 
@@ -75,7 +112,9 @@ signatureFile="$configPath/signature.txt"
 
 mkdir -p "$configPath"
 
-echo 'reading configuration'
+header
+
+echo '📜 reading configuration'
 
 if test ! -f "$settingsFile"
 then
@@ -85,14 +124,15 @@ fi
 
 if test ! -f "$signatureFile"
 then
-    echo '⚠️ no file "~/config/newsletter/signature.txt" found, a default one was created.'
+    echo '⚠️ no file "~/config/newsletter/signature.txt" found, an empty one was created.'
     touch "$signatureFile"
 fi
 
 if test ! -f "$emailsFile"
 then
     echo '⚠️ no file "~/config/newsletter/mails" found, a default one was created.'
-    echo 'This file should contain the emails you want to send the newsletter to'
+    echo 'This file should contain the emails you want to send the newsletter to.'
+    echo 'An empty one was created'
     touch "$emailsFile"
     exit 1
 fi
@@ -124,11 +164,14 @@ else
     subject="$1"
 fi
 
-# get list of emails and remove duplicates using -u (unique)
-uniqueEmails=$(sort -u "$emailsFile")
+# read emails file while removing blank lines
+emails=$(grep -v -e '^$' "$emailsFile")
+
+# remove duplicates using -u (unique)
+uniqueEmails=$(echo -n "$emails" | sort -u)
 
 # count the number of emails
-count=$(echo "$uniqueEmails" | wc -l)
+count=$(echo -n "$uniqueEmails" | wc -l)
 
 # estimate sending time, here for 0.2 sec per email
 time=$(($count / 5))
@@ -145,7 +188,7 @@ echo -e "███████████████████████�
 
 echo
 
-echo "Do you really want to send this to $count email addresses ? y/[n]"
+echo "Do you really want to send this to $count unique email addresses ? y/[n]"
 echo "(estimated sending time is $time seconds)"
 
 # read user input for consent
@@ -155,12 +198,12 @@ read -rsn1 consent <&2
 if test "$consent" != 'y'
 then
     echo "sending aborted"
-    exit 2
+    exit 3
 fi
 
-printf 'sending'
+printf '📨 sending'
 
-echo "$uniqueEmails" | while read addr
+echo -n "$uniqueEmails" | while read addr
 do
     echo -e "$content" | qprint --encode | mailx \
         -s "$subject" \
