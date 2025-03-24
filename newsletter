@@ -8,7 +8,7 @@ header() {
     echo
 }
 
-help () {
+helper () {
     header
     cat <<'EOF'
 This will send a newsletter to every mail addresses listed in the emails
@@ -19,12 +19,12 @@ Usage: newsletter [-c CONFIG_PATH] [-n EMAIL_NAME] SUBJECT [CONTENT_FILE]
   -c CONFIG_PATH    override the default config path
   -n EMAIL_NAME     override the email name
   -h                print this help
+  -i                initialize .forward files
 
 SUBJECT: the main subject of your newsletter.
 (Use quotes for multi words name ex: 'La grande fête du morbier')
 
 CONTENT_FILE: path to the file that store the content of your newsletter.
-
 Alternatively, you can pipe the content through STDIN.
 
 The default From address will use your club1 username like this:
@@ -34,13 +34,22 @@ Git repo: <https://github.com/club-1/newsletter>
 EOF
 }
 
+# initialize newsletter
+# {{PREFIX}} will be replaced during install with Make.
+init() {
+    echo '| {{PREFIX}}/sbin/nl subscribe' > "$HOME/.forward+subscribe"
+    echo '| {{PREFIX}}/sbin/nl confirm' > "$HOME/.forward+confirm"
+    echo '| {{PREFIX}}/sbin/nl unsubscribe' > "$HOME/.forward+unsubscribe"
+    echo 'created 3 .forward files (+subscribe, +confirm, +unsubscribe)'
+}
+
 
 # default newsletter email name is username
 nl="$USER"
 # default config path location
 configPath="$HOME/.config/newsletter"
 
-while getopts 'n:c:h' opt
+while getopts 'n:c:hi' opt
 do
     case $opt in
         c)
@@ -52,11 +61,15 @@ do
             nl="$OPTARG"
         ;;
         h)
-            help
+            helper
+            exit 0
+        ;;
+        i)
+            init
             exit 0
         ;;
         *)
-            help
+            helper
             exit 2
         ;;
     esac
@@ -216,3 +229,4 @@ do
 done
 echo 'done !'
 exit 0
+
