@@ -2,23 +2,28 @@
 PREFIX ?= /usr/local
 
 # Default installation paths
+BIN_DIR     := $(DESTDIR)$(PREFIX)/bin
 SBIN_DIR    := $(DESTDIR)$(PREFIX)/sbin
-DIRS        := $(SBIN_DIR)
+DIRS        := $(BIN_DIR) $(SBIN_DIR)
 
 # Files to install
-BINS        := nl newsletter
+BINS        := newsletter
+SBINS       := nl
 
 # Installed files
-BINS_INST   := $(patsubst %,$(SBIN_DIR)/%,$(BINS))
+BINS_INST   := $(patsubst %,$(BIN_DIR)/%,$(BINS))
+SBINS_INST  := $(patsubst %,$(SBIN_DIR)/%,$(SBINS))
 
 all: ;
 
 install: | $(DIRS)
-	install -D $(BINS) $(SBIN_DIR) -m 750 -g mail
-	sed -i -e 's#{{PREFIX}}#$(PREFIX)#' $(SBIN_DIR)/newsletter
+	install -D $(BINS) $(BIN_DIR) -m 750 -g mail
+	install -D $(SBINS) $(SBIN_DIR) -m 750 -g mail
+	sed -i -e 's#{{PREFIX}}#$(PREFIX)#' "$(BIN_DIR)/newsletter"
 
 uninstall:
-	-rm $(BINS_INST)
+	rm -f $(BINS_INST) $(SBINS_INST)
+	-rm -d $(BIN_DIR) $(SBIN_DIR)
 
 $(DIRS):
 	install -d $@
