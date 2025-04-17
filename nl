@@ -96,6 +96,8 @@ confirm () {
 configPath="$HOME/.config/newsletter"
 # store stdin (standard input)
 mail=$(cat)
+# default email username is current user's name
+nl="$USER"
 
 while getopts 'c:' opt
 do
@@ -103,29 +105,33 @@ do
         c)
             # overide config path
             configPath="$OPTARG"
+
+            # if the config folder does not exist, abort here
+            if test ! -d "$configPath"
+            then
+                echo "config path '$configPath' is not a valid folder."
+                exit 2
+            fi
+        ;;
+        *)
+            echo 'invalid flag(s)'
+            exit 2
         ;;
     esac
 done
 shift "$(($OPTIND -1))"
 
-# if the config folder does not exist, abort here
-if test ! -d "$configPath"
-then
-    echo "config path '$configPath' is not a valid folder."
-    exit 2
-fi
+mkdir -pv "$configPath"
 
 # associate first arg with sub-command
 subcmd=$1
 
-# email name is username
-nl="$USER"
 
 # check if email have Autosubmitted Header
 # if so, abort mission and prevent daemon to send any error email to avoid infinite bouncing
 autoSubmitted=$(echo "$mail" | grep -cEi -m 1 "^Auto-Submitted:" || test $? = 1)
 
-if test $autoSubmitted = 1
+if test "$autoSubmitted" = 1
 then
     exit 1
 fi
@@ -148,6 +154,7 @@ exist=$(grep -c -x -m 1 "$emailFrom" "$emails" || test $? = 1)
 settingsFile="$configPath/settings.json"
 title=$(cat "$settingsFile" | jq -r '.title // ""')
 displayName=$(cat "$settingsFile" | jq -r '.displayName // ""')
+fromUsername=$(cat "$settingsFile" | jq -r '.fromUsername // ""')
 
 # define extended title: how the newsletter is called in the email
 if test -n "$title"
@@ -155,6 +162,11 @@ then
     extendedTitle="la newsletter [$title]"
 else
     extendedTitle="la newsletter de $USER"
+fi
+
+if test -n "$fromUsername"
+then
+    nl="$fromUsername"
 fi
 
 # load a signature from the corresponding file

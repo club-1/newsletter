@@ -35,16 +35,19 @@ Fill `.secret` with a long sentence.
 Fill `signature.txt` with text that need to appear at the end of each email. This will be placed after a `-- ` signature separator.
 
 Settings is a JSON file that contain some metada about the newsletter.
-Two fields are allowed: `title` and `displayName`.
+Three fields are allowed: `title`, `displayName` and `fromUsername`.
 
 ```json
 {
-  "title": "news from the kitchen",
-  "displayName": "Mysterious alien"
+  "title": "news from alien kitchen",
+  "displayName": "Mysterious alien",
+  "fromUsername": "myst-alien"
 }
 ```
 
-Where `title` is the official name of the newsletter. It will be used during sign up phase. And `displayName` is the email associated display name in the `From` field.
+Where `title` is the official name of the newsletter. It will be used during sign up phase. `displayName` is the email associated display name in the `From` field. And `fromUsername` is the text before `@club1.fr` in the `From` field.
+
+    From: DISPLAY_NAME <FROM_USERNAME@club1.fr>
 
 ### Forwarding
 
@@ -72,18 +75,17 @@ The `nl` can take an optionnal argument that is used to override config path.
 ### send newsletter
 
 ```sh
-./newsletter [-c CONFIG_PATH] [-n EMAIL_NAME] SUBJECT [CONTENT_FILE]
+./newsletter [-c CONFIG_PATH] SUBJECT [CONTENT_FILE]
 ```
 
 Where:
 
-- `CONFIG_PATH` is the folder containing the config
-- `EMAIL_NAME` is the name before `@club1.fr`
+- `CONFIG_PATH` is the folder containing the config (default is `~/.config/newsletter`)
 - `SUBJECT` is the subject of the letter
 - `CONTENT_FILE` is the file containing the newsletter text. An alternative method is to transmit the content through STDIN using a pipe.
 
 This will send a newsletter to every mail addresses listed in the `emails` file in config folder.
-The default __From address__  will use your club1 username like this `USER@club1.fr`, but can be overidden using `-n` argument.
+The default __From address__  will use your club1 username like this `USER@club1.fr`, but can be overidden using the settings file.
 If you define a `displayName` in `settings.json`, it will be displayed in the like this:
 
     DISPLAY_NAME <USER@club1.fr>
