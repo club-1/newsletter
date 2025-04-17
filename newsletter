@@ -14,10 +14,9 @@ helper () {
 This will send a newsletter to every mail addresses listed in the emails
 file in config folder.
 
-Usage: newsletter [-c CONFIG_PATH] [-n EMAIL_NAME] SUBJECT [CONTENT_FILE]
+Usage: newsletter [-c CONFIG_PATH] SUBJECT [CONTENT_FILE]
 
   -c CONFIG_PATH    override the default config path
-  -n EMAIL_NAME     override the email name
   -h                print this help
   -i                initialize .forward files
 
@@ -28,7 +27,7 @@ CONTENT_FILE: path to the file that store the content of your newsletter.
 Alternatively, you can pipe the content through STDIN.
 
 The default From address will use your club1 username like this:
-USER@club1.fr, but can be overidden using -c argument.
+USER@club1.fr, but it can be overidden using setting file.
 
 Git repo: <https://github.com/club-1/newsletter>
 EOF
@@ -49,16 +48,19 @@ nl="$USER"
 # default config path location
 configPath="$HOME/.config/newsletter"
 
-while getopts 'n:c:hi' opt
+while getopts 'c:hi' opt
 do
     case $opt in
         c)
             # overide config path
             configPath="$OPTARG"
-        ;;
-        n)
-            # overide newsletter email name
-            nl="$OPTARG"
+
+            # if the config folder does not exist, abort here
+            if test ! -d "$configPath"
+            then
+                echo "config path '$configPath' is not a valid folder."
+                exit 2
+            fi
         ;;
         h)
             helper
@@ -75,13 +77,6 @@ do
     esac
 done
 shift "$(($OPTIND -1))"
-
-# if the config folder does not exist, abort here
-if test ! -d "$configPath"
-then
-    echo "config path '$configPath' is not a valid folder."
-    exit 2
-fi
 
 # if the newsletter name is not valid, abort here
 if ! $(expr "$nl" : '^[a-z0-9-]\{3,17\}$' > /dev/null)
@@ -127,32 +122,46 @@ mkdir -p "$configPath"
 
 header
 
-echo '📜 reading configuration'
+echo "📜 reading configuration in '$configPath'"
+
+# As no custom config folder is provided, the default config folder is created automatically
+mkdir -pv "$configPath"
 
 if test ! -f "$settingsFile"
 then
-    echo '⚠️ no file "~/config/newsletter/settings.json" found, a default one was created.'
-    jq -n '.title = "" | .displayName = ""' >> "$settingsFile"
+    echo "⚠️ no file '$configPath/settings.json' found, a default one was created."
+    jq -n '.title = "" | .displayName = "" | .fromUsername = ""' >> "$settingsFile"
 fi
 
 if test ! -f "$signatureFile"
 then
-    echo '⚠️ no file "~/config/newsletter/signature.txt" found, an empty one was created.'
+    echo "⚠️ no file '$configPath/signature.txt' found, an empty one was created."
     touch "$signatureFile"
 fi
 
 if test ! -f "$emailsFile"
 then
-    echo '⚠️ no file "~/config/newsletter/mails" found, a default one was created.'
+    echo "⚠️ no file '$configPath/emails' found, a default one was created."
     echo 'This file should contain the emails you want to send the newsletter to.'
-    echo 'An empty one was created'
     touch "$emailsFile"
-    exit 1
+    exit 2 # useless to continue beccause there is no recipients
 fi
 
 displayName=$(cat "$settingsFile" | jq -r '.displayName // ""')
 title=$(cat "$settingsFile" | jq -r '.title // ""')
+fromUsername=$(cat "$settingsFile" | jq -r '.fromUsername // ""')
 signature=$(cat "$signatureFile")
+
+if test -n "$fromUsername"
+then
+    nl="$fromUsername"
+fi
+
+if ! $(expr "$nl" : '^[a-z0-9-]\{3,17\}$' > /dev/null)
+then
+    echo "newsletter From email '$nl@club1.fr' is not valid"
+    exit 2
+fi
 
 unsubscribe="Pour vous désinscrire, vous pouvez envoyer un email a : <$nl+unsubscribe@club1.fr>"
 
@@ -184,7 +193,15 @@ emails=$(grep -v -e '^$' "$emailsFile")
 uniqueEmails=$(echo -n "$emails" | sort -u)
 
 # count the number of emails
-count=$(echo -n "$uniqueEmails" | wc -l)
+count=$(echo "$uniqueEmails" | wc -w)
+
+# if no recipients, stop here and display an help message
+if test "$count" = 0
+then
+    echo '⚠️ the list of recipients is empty !'
+    echo "Fill the file '$configPath/emails' with one email per line."
+    exit 2
+fi
 
 # estimate sending time, here for 0.2 sec per email
 time=$(($count / 5))
@@ -210,13 +227,13 @@ read -rsn1 consent <&2
 
 if test "$consent" != 'y'
 then
-    echo "sending aborted"
+    echo "❌ sending aborted"
     exit 3
 fi
 
 printf '📨 sending'
 
-echo -n "$uniqueEmails" | while read addr
+echo "$uniqueEmails" | while read addr
 do
     echo -e "$content" | qprint --encode | mailx \
         -s "$subject" \
