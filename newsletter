@@ -39,7 +39,6 @@ init() {
     echo '| {{PREFIX}}/sbin/nl subscribe' > "$HOME/.forward+subscribe"
     echo '| {{PREFIX}}/sbin/nl confirm' > "$HOME/.forward+confirm"
     echo '| {{PREFIX}}/sbin/nl unsubscribe' > "$HOME/.forward+unsubscribe"
-    echo 'created 3 .forward files (+subscribe, +confirm, +unsubscribe)'
 }
 
 
@@ -130,7 +129,7 @@ mkdir -pv "$configPath"
 if test ! -f "$settingsFile"
 then
     echo "⚠️ no file '$configPath/settings.json' found, a default one was created."
-    jq -n '.title = "" | .displayName = "" | .fromUsername = ""' >> "$settingsFile"
+    jq -n '.title = "" | .displayName = ""' >> "$settingsFile"
 fi
 
 if test ! -f "$signatureFile"
@@ -149,13 +148,7 @@ fi
 
 displayName=$(cat "$settingsFile" | jq -r '.displayName // ""')
 title=$(cat "$settingsFile" | jq -r '.title // ""')
-fromUsername=$(cat "$settingsFile" | jq -r '.fromUsername // ""')
 signature=$(cat "$signatureFile")
-
-if test -n "$fromUsername"
-then
-    nl="$fromUsername"
-fi
 
 if ! $(expr "$nl" : '^[a-z0-9-]\{3,17\}$' > /dev/null)
 then

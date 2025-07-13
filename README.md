@@ -35,17 +35,16 @@ Fill `.secret` with a long sentence.
 Fill `signature.txt` with text that need to appear at the end of each email. This will be placed after a `-- ` signature separator.
 
 Settings is a JSON file that contain some metada about the newsletter.
-Three fields are allowed: `title`, `displayName` and `fromUsername`.
+Three fields are allowed: `title`, and `displayName`.
 
 ```json
 {
   "title": "news from alien kitchen",
-  "displayName": "Mysterious alien",
-  "fromUsername": "myst-alien"
+  "displayName": "Mysterious alien"
 }
 ```
 
-Where `title` is the official name of the newsletter. It will be used during sign up phase. `displayName` is the email associated display name in the `From` field. And `fromUsername` is the text before `@club1.fr` in the `From` field.
+Where `title` is the official name of the newsletter. It will be used during sign up phase. `displayName` is the email associated display name in the `From` field.
 
     From: DISPLAY_NAME <FROM_USERNAME@club1.fr>
 
