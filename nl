@@ -154,7 +154,6 @@ exist=$(grep -c -x -m 1 "$emailFrom" "$emails" || test $? = 1)
 settingsFile="$configPath/settings.json"
 title=$(cat "$settingsFile" | jq -r '.title // ""')
 displayName=$(cat "$settingsFile" | jq -r '.displayName // ""')
-fromUsername=$(cat "$settingsFile" | jq -r '.fromUsername // ""')
 
 # define extended title: how the newsletter is called in the email
 if test -n "$title"
@@ -162,11 +161,6 @@ then
     extendedTitle="la newsletter [$title]"
 else
     extendedTitle="la newsletter de $USER"
-fi
-
-if test -n "$fromUsername"
-then
-    nl="$fromUsername"
 fi
 
 # load a signature from the corresponding file
