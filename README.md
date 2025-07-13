@@ -57,13 +57,13 @@ User home directory must contain 3 files:
     .forward+confirm          | "SCRIPT_PATH confirm"
     .forward+unsubscribe      | "SCRIPT_PATH unsubscribe"
 
-Where `SCRIPT_PATH` is the full absolute path to the `nl` script. For example: `/usr/local/sbin/nl`.
+Where `SCRIPT_PATH` is the full absolute path to the `newsletterctl` script. For example: `/usr/local/sbin/newsletterctl`.
 
 #### Override config path
 
-The `nl` can take an optionnal argument that is used to override config path.
+The `newsletterctl` can take an optionnal argument that is used to override config path.
 
-    nl [-c CONFIG_PATH] SUB_COMMAND
+    newsletterctl [-c CONFIG_PATH] SUB_COMMAND
 
 `CONFIG_PATH` is a path to the config folder. That must contain all config files as described in [setup](#user-setup).
 

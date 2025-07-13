@@ -36,9 +36,9 @@ EOF
 # initialize newsletter
 # {{PREFIX}} will be replaced during install with Make.
 init() {
-    echo '| {{PREFIX}}/sbin/nl subscribe' > "$HOME/.forward+subscribe"
-    echo '| {{PREFIX}}/sbin/nl confirm' > "$HOME/.forward+confirm"
-    echo '| {{PREFIX}}/sbin/nl unsubscribe' > "$HOME/.forward+unsubscribe"
+    echo '| {{PREFIX}}/sbin/newsletterctl subscribe' > "$HOME/.forward+subscribe"
+    echo '| {{PREFIX}}/sbin/newsletterctl confirm' > "$HOME/.forward+confirm"
+    echo '| {{PREFIX}}/sbin/newsletterctl unsubscribe' > "$HOME/.forward+unsubscribe"
     echo "created 3 .forward files in '$HOME' (+subscribe, +confirm, +unsubscribe)"
 }
 

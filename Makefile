@@ -8,7 +8,7 @@ DIRS        := $(BIN_DIR) $(SBIN_DIR)
 
 # Files to install
 BINS        := newsletter
-SBINS       := nl
+SBINS       := newsletterctl
 
 # Installed files
 BINS_INST   := $(patsubst %,$(BIN_DIR)/%,$(BINS))
