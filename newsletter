@@ -9,7 +9,6 @@ header() {
 }
 
 helper () {
-    header
     cat <<'EOF'
 This will send a newsletter to every mail addresses listed in the emails
 file in config folder.
@@ -39,7 +38,7 @@ init() {
     echo '| "{{PREFIX}}/sbin/newsletterctl subscribe"' > "$HOME/.forward+subscribe"
     echo '| "{{PREFIX}}/sbin/newsletterctl confirm"' > "$HOME/.forward+confirm"
     echo '| "{{PREFIX}}/sbin/newsletterctl unsubscribe"' > "$HOME/.forward+unsubscribe"
-    echo "created 3 .forward files in '$HOME' (+subscribe, +confirm, +unsubscribe)"
+    echo "📝 created 3 .forward files in '$HOME' (+subscribe, +confirm, +unsubscribe)"
 }
 
 
@@ -47,6 +46,11 @@ init() {
 nl="$USER"
 # default config path location
 configPath="$HOME/.config/newsletter"
+# no init by default
+init=0
+
+# print the header
+header
 
 while getopts 'c:hi' opt
 do
@@ -67,8 +71,8 @@ do
             exit 0
         ;;
         i)
+            init=1
             init
-            exit 0
         ;;
         *)
             helper
@@ -77,6 +81,46 @@ do
     esac
 done
 shift "$(($OPTIND -1))"
+
+settingsFile="$configPath/settings.json"
+emailsFile="$configPath/emails"
+signatureFile="$configPath/signature.txt"
+
+# As no custom config folder is provided, the default config folder is created automatically
+mkdir -pv "$configPath"
+
+if test ! -f "$settingsFile"
+then
+    echo "⚠️ no file '$configPath/settings.json' found, a default one was created."
+    jq -n '.title = "" | .displayName = ""' >> "$settingsFile"
+fi
+
+if test ! -f "$signatureFile"
+then
+    echo "⚠️ no file '$configPath/signature.txt' found, an empty one was created."
+    touch "$signatureFile"
+fi
+
+if test ! -f "$emailsFile"
+then
+    echo "⚠️ no file '$configPath/emails' found, a default one was created."
+    echo 'This file should contain the emails you want to send the newsletter to.'
+    touch "$emailsFile"
+
+    if test "$init" = 0
+    then
+        exit 2 # useless to continue beccause there is no recipients
+    fi
+fi
+
+# If it's only an initialization, we stop here and celebrate the ending
+if test "$init" = 1
+then
+    echo '🎉 initialization successful'
+    exit 0
+fi
+
+echo "📜 reading configuration in '$configPath'"
 
 # if the newsletter name is not valid, abort here
 if ! $(expr "$nl" : '^[a-z0-9-]\{3,17\}$' > /dev/null)
@@ -113,39 +157,6 @@ else
     fi
 fi
 
-
-settingsFile="$configPath/settings.json"
-emailsFile="$configPath/emails"
-signatureFile="$configPath/signature.txt"
-
-mkdir -p "$configPath"
-
-header
-
-echo "📜 reading configuration in '$configPath'"
-
-# As no custom config folder is provided, the default config folder is created automatically
-mkdir -pv "$configPath"
-
-if test ! -f "$settingsFile"
-then
-    echo "⚠️ no file '$configPath/settings.json' found, a default one was created."
-    jq -n '.title = "" | .displayName = ""' >> "$settingsFile"
-fi
-
-if test ! -f "$signatureFile"
-then
-    echo "⚠️ no file '$configPath/signature.txt' found, an empty one was created."
-    touch "$signatureFile"
-fi
-
-if test ! -f "$emailsFile"
-then
-    echo "⚠️ no file '$configPath/emails' found, a default one was created."
-    echo 'This file should contain the emails you want to send the newsletter to.'
-    touch "$emailsFile"
-    exit 2 # useless to continue beccause there is no recipients
-fi
 
 displayName=$(cat "$settingsFile" | jq -r '.displayName // ""')
 title=$(cat "$settingsFile" | jq -r '.title // ""')
