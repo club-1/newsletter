@@ -10,8 +10,8 @@ header() {
 
 helper () {
     cat <<'EOF'
-This will send a newsletter to every mail addresses listed in the emails
-file in config folder.
+This command send a mail to every addresses listed in the emails
+file in config folder with a given content.
 
 Usage: newsletter [-c CONFIG_PATH] SUBJECT [CONTENT_FILE]
 
