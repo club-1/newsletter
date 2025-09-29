@@ -28,7 +28,7 @@ Alternatively, you can pipe the content through STDIN.
 The default From address will use your club1 username like this:
 USER@club1.fr, but it can be overidden using setting file.
 
-Git repo: <https://github.com/club-1/newsletter>
+📘 Doc: <https://club1.fr/docs/fr/services/newsletter.html>
 EOF
 }
 
