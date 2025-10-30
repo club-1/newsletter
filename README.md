@@ -90,3 +90,20 @@ If you define a `displayName` in `settings.json`, it will be displayed in the li
     DISPLAY_NAME <USER@club1.fr>
 
 If a `title` is set in `settings.json` it will be used as a prefix in each newsletter subjects under square brackets (even during subscription and unsubscription).
+
+
+## Install
+
+Default install location is `/usr/local` (also known as "PREFIX"). `newsletter` will be copied in `bin` subfolder and `newslettertcl` in `sbin` subfolder.
+
+    make install
+
+One can override the default location like this:
+
+    make PREFIX='/some/path' install
+
+This is usefull for developpement.
+
+During installation, `{{PREFIX}}` in scripts is replaced by the given PREFIX.
+We've done that beccause the script are invoked by Postfix with a limited PATH.
+To resolve this, we only use full absolute paths in our scripts.
