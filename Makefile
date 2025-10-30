@@ -20,6 +20,7 @@ install: | $(DIRS)
 	install -D $(BINS) $(BIN_DIR)
 	install -D $(SBINS) $(SBIN_DIR)
 	sed -i -e 's#{{PREFIX}}#$(PREFIX)#' "$(BIN_DIR)/newsletter"
+	sed -i -e 's#{{PREFIX}}#$(PREFIX)#' "$(SBIN_DIR)/newsletterctl"
 
 uninstall:
 	rm -f $(BINS_INST) $(SBINS_INST)

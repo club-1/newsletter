@@ -18,6 +18,7 @@ Usage: newsletter [-c CONFIG_PATH] SUBJECT [CONTENT_FILE]
   -c CONFIG_PATH    override the default config path
   -h                print this help
   -i                initialize .forward files
+  -n                dry run, non-interactive
 
 SUBJECT: the main subject of your newsletter.
 (Use quotes for multi words name ex: 'La grande fête du morbier')
@@ -38,7 +39,8 @@ init() {
     echo '| "{{PREFIX}}/sbin/newsletterctl subscribe"' > "$HOME/.forward+subscribe"
     echo '| "{{PREFIX}}/sbin/newsletterctl confirm"' > "$HOME/.forward+confirm"
     echo '| "{{PREFIX}}/sbin/newsletterctl unsubscribe"' > "$HOME/.forward+unsubscribe"
-    echo "📝 created 3 .forward files in '$HOME' (+subscribe, +confirm, +unsubscribe)"
+    echo '| "{{PREFIX}}/sbin/newsletterctl send"' > "$HOME/.forward+send"
+    echo "📝 created 4 .forward files in '$HOME' (+subscribe, +confirm, +unsubscribe, +send)"
 }
 
 
@@ -46,13 +48,14 @@ init() {
 nl="$USER"
 # default config path location
 configPath="$HOME/.config/newsletter"
-# no init by default
+# no init or dty run by default
 init=0
+dryRun=0
 
 # print the header
 header
 
-while getopts 'c:hi' opt
+while getopts 'c:hin' opt
 do
     case $opt in
         c)
@@ -72,6 +75,10 @@ do
         ;;
         i)
             init=1
+            init
+        ;;
+        n)
+            dryRun=1
             init
         ;;
         *)
@@ -225,6 +232,12 @@ echo
 
 echo "Do you really want to send this to $count unique email addresses ? y/[n]"
 echo "(estimated sending time is $time seconds)"
+
+# in case of dry run, we stop here
+if test "$dryRun" = 1
+then
+    exit 0
+fi
 
 # read user input for consent
 # inspired by first method from answer <https://stackoverflow.com/a/54396662>

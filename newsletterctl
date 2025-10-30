@@ -92,6 +92,28 @@ confirm () {
     fi
 }
 
+send () {
+    # check if email from match user
+    if test "$emailFrom" = "$nl@club1.fr"
+    then
+        # get email body
+        emailBody=$(echo "$mail" | sed -e '1,/^$/ d' )
+
+        # get email subject
+        emailSubject=$(echo "$mail" | sed '/^Subject: */!d; s///;q')
+
+        # run newsletter script
+        # {{PREFIX}} will be replaced during install with Make.
+        response="$(echo "$emailBody" | {{PREFIX}}/bin/newsletter -n "$emailSubject" )"
+
+        sendEmail \
+            "Confirmation d'envoi" \
+            "$response" \
+            -a "Message-Id: $(confirmID)" -a "Reply-to: $nl+test@club1.fr"
+        
+    fi
+}
+
 # Default config path location
 configPath="$HOME/.config/newsletter"
 # store stdin (standard input)
@@ -178,6 +200,7 @@ case $subcmd in
     'subscribe') subscribe;;
     'unsubscribe') unsubscribe;;
     'confirm') confirm;;
+    'send') send;;
     *) echo 'this sub-command does not exist'
     exit 2;;
 esac
