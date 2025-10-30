@@ -31,17 +31,35 @@ checkAlreadySubscribed () {
     fi
 }
 
-# generate an identifier like `<NLNAME-XXXXX@club1.fr>` thanks to a hash based on the `.secret` config file
-confirmID () {
+# return content of .secret file
+# if the file does'nt exist yet, it's created
+getSecret() {
     if test ! -s "$configPath/.secret"
     then
         head -c 30 /dev/urandom | base64 > "$configPath/.secret"
         touch "$configPath/.secret"
         chmod 600 "$configPath/.secret"
     fi
-    secret=$(cat "$configPath/.secret")
-    hash=$(echo -n "$emailFrom$secret" | sha256sum | cut -b 1-16)
-    echo "<$nl-${hash}@club1.fr>"
+    echo $(cat "$configPath/.secret")
+}
+
+# generate a hash based on given string and .secret
+hashWithSecret () {
+    secret="$(getSecret)"
+    hash=$(echo -n "$1$secret" | sha256sum | cut -b 1-16)
+    echo "$hash"
+}
+
+# generate an identifier like `<NLNAME-XXXXX@club1.fr>` thanks to a given string
+generateID () {
+    echo "<$nl-$1@club1.fr>"
+}
+
+# get confirmation ID based on From header
+confirmID () {
+    hash="$(hashWithSecret "$emailFrom")"
+    id="$(generateID "$hash")"
+    echo "$id"
 }
 
 subscribe () {
@@ -102,6 +120,12 @@ send () {
         # get email subject
         emailSubject=$(echo "$mail" | sed '/^Subject: */!d; s///;q')
 
+        hash="$(hashWithSecret "$emailBody$emailSubject")"
+        sendID="$(generateID "$hash")"
+
+        echo "$emailBody" > "/tmp/newsletter-send-$hash.body.txt"
+        echo "$emailSubject" > "/tmp/newsletter-send-$hash.subject.txt"
+
         # run newsletter script
         # {{PREFIX}} will be replaced during install with Make.
         response="$(echo "$emailBody" | {{PREFIX}}/bin/newsletter -n "$emailSubject" )"
@@ -109,8 +133,7 @@ send () {
         sendEmail \
             "Confirmation d'envoi" \
             "$response" \
-            -a "Message-Id: $(confirmID)" -a "Reply-to: $nl+test@club1.fr"
-        
+            -a "Message-Id: $sendID" -a "Reply-to: $nl+test@club1.fr"
     fi
 }
 
