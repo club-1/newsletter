@@ -81,7 +81,6 @@ do
         ;;
         n)
             dryRun=1
-            init
         ;;
         y)
             yes=1
