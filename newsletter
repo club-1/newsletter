@@ -19,6 +19,7 @@ Usage: newsletter [-c CONFIG_PATH] SUBJECT [CONTENT_FILE]
   -h                print this help
   -i                initialize .forward files
   -n                dry run, non-interactive
+  -y                don't ask for confirmation (yes)
 
 SUBJECT: the main subject of your newsletter.
 (Use quotes for multi words name ex: 'La grande fête du morbier')
@@ -48,14 +49,15 @@ init() {
 nl="$USER"
 # default config path location
 configPath="$HOME/.config/newsletter"
-# no init or dty run by default
+# no init, yes or dry run by default
 init=0
 dryRun=0
+yes=0
 
 # print the header
 header
 
-while getopts 'c:hin' opt
+while getopts 'c:hiny' opt
 do
     case $opt in
         c)
@@ -80,6 +82,9 @@ do
         n)
             dryRun=1
             init
+        ;;
+        y)
+            yes=1
         ;;
         *)
             helper
@@ -239,14 +244,18 @@ then
     exit 0
 fi
 
-# read user input for consent
-# inspired by first method from answer <https://stackoverflow.com/a/54396662>
-read -rsn1 consent <&2
-
-if test "$consent" != 'y'
+# if yes mode is on, do not ask for user confirmation
+if test "$yes" = 0
 then
-    echo "❌ sending aborted"
-    exit 3
+    # read user input for consent
+    # inspired by first method from answer <https://stackoverflow.com/a/54396662>
+    read -rsn1 consent <&2
+
+    if test "$consent" != 'y'
+    then
+        echo "❌ sending aborted"
+        exit 3
+    fi
 fi
 
 printf '📨 sending'
