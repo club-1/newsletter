@@ -20,6 +20,7 @@ Usage: newsletter [-c CONFIG_PATH] SUBJECT [CONTENT_FILE]
   -i                initialize .forward files
   -n                dry run, non-interactive
   -y                don't ask for confirmation (yes)
+  -m                mail output mode (not to be used in terminal)
 
 SUBJECT: the main subject of your newsletter.
 (Use quotes for multi words name ex: 'La grande fête du morbier')
@@ -54,11 +55,10 @@ configPath="$HOME/.config/newsletter"
 init=0
 dryRun=0
 yes=0
+mailOutput=0
 
-# print the header
-header
 
-while getopts 'c:hiny' opt
+while getopts 'c:hinym' opt
 do
     case $opt in
         c)
@@ -86,6 +86,9 @@ do
         y)
             yes=1
         ;;
+        m)
+            mailOutput=1
+        ;;
         *)
             helper
             exit 2
@@ -93,6 +96,12 @@ do
     esac
 done
 shift "$(($OPTIND -1))"
+
+# print the header if output mode is not set to mail (this mean terminal output)
+if test "$mailOutput" = 0
+then
+    header
+fi
 
 settingsFile="$configPath/settings.json"
 emailsFile="$configPath/emails"
@@ -132,7 +141,10 @@ then
     exit 0
 fi
 
-echo "📜 reading configuration in '$configPath'"
+if test "$mailOutput" = 0
+then
+    echo "📜 reading configuration in '$configPath'"
+fi
 
 # if the newsletter name is not valid, abort here
 if ! $(expr "$nl" : '^[a-z0-9-]\{3,17\}$' > /dev/null)
@@ -238,12 +250,27 @@ showTerminalPreview() {
 
     echo "Do you really want to send this to $count unique email addresses ? y/[n]"
     echo "(estimated sending time is $time seconds)"
+}
 
+showMailPreview() {
+    echo "Do you really want to send this to $count unique email addresses ?"
+    echo 'If you like the following preview, answer this email to spread the newsletter ! 📨'
+    echo "(estimated sending time is $time seconds)"
+    echo
+    echo "✉️ Subject: $subject"
+    echo "✉️ From: $from"
+    echo
+    echo -e "$content" | fold -w 80 -s
 }
 
 if test "$yes" = 0
 then
-    showTerminalPreview
+    if test "$mailOutput" = 1
+    then
+        showMailPreview
+    else
+        showTerminalPreview
+    fi
 fi
 
 # in case of dry run, we stop here

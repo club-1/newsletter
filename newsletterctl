@@ -129,7 +129,7 @@ send () {
 
         # run newsletter script
         # {{PREFIX}} will be replaced during install with Make.
-        response="$(echo "$emailBody" | {{PREFIX}}/bin/newsletter -n "$emailSubject" )"
+        response="$(echo "$emailBody" | {{PREFIX}}/bin/newsletter -mn "$emailSubject" )"
 
         sendEmail \
             "Confirmation d'envoi" \
@@ -157,7 +157,7 @@ sendConfirm () {
     subject=$(cat "/tmp/newsletter-send-$hash.subject.txt")
 
     # lauch newsletter script
-    result=$({{PREFIX}}/bin/newsletter -y "$subject" "/tmp/newsletter-send-$hash.body.txt")
+    result=$({{PREFIX}}/bin/newsletter -ym "$subject" "/tmp/newsletter-send-$hash.body.txt")
 
     # delete temporary files
     rm "/tmp/newsletter-send-$hash.body.txt"
