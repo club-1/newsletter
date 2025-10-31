@@ -223,20 +223,28 @@ fi
 # estimate sending time, here for 0.2 sec per email
 time=$(($count / 5))
 
-echo
-echo -e "███████████████████████████████████\e[7m HEADER \e[27m████████████████████████████████████"
+showTerminalPreview() {
+    echo
+    echo -e "███████████████████████████████████\e[7m HEADER \e[27m████████████████████████████████████"
 
-echo "Subject: $subject"
-echo "From: $from"
+    echo "Subject: $subject"
+    echo "From: $from"
 
-echo -e "███████████████████████████████████\e[7m CONTENT \e[27m███████████████████████████████████"
-echo -e "$content" | fold -w 80 -s
-echo -e "███████████████████████████████████████████████████████████████████████████████"
+    echo -e "███████████████████████████████████\e[7m CONTENT \e[27m███████████████████████████████████"
+    echo -e "$content" | fold -w 80 -s
+    echo -e "███████████████████████████████████████████████████████████████████████████████"
 
-echo
+    echo
 
-echo "Do you really want to send this to $count unique email addresses ? y/[n]"
-echo "(estimated sending time is $time seconds)"
+    echo "Do you really want to send this to $count unique email addresses ? y/[n]"
+    echo "(estimated sending time is $time seconds)"
+
+}
+
+if test "$yes" = 0
+then
+    showTerminalPreview
+fi
 
 # in case of dry run, we stop here
 if test "$dryRun" = 1
