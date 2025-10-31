@@ -41,7 +41,8 @@ init() {
     echo '| "{{PREFIX}}/sbin/newsletterctl confirm"' > "$HOME/.forward+confirm"
     echo '| "{{PREFIX}}/sbin/newsletterctl unsubscribe"' > "$HOME/.forward+unsubscribe"
     echo '| "{{PREFIX}}/sbin/newsletterctl send"' > "$HOME/.forward+send"
-    echo "📝 created 4 .forward files in '$HOME' (+subscribe, +confirm, +unsubscribe, +send)"
+    echo '| "{{PREFIX}}/sbin/newsletterctl send-confirm"' > "$HOME/.forward+send-confirm"
+    echo "📝 created 5 .forward files in '$HOME' (+subscribe, +confirm, +unsubscribe, +send, +send-confirm)"
 }
 
 

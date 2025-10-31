@@ -123,6 +123,7 @@ send () {
         hash="$(hashWithSecret "$emailBody$emailSubject")"
         sendID="$(generateID "$hash")"
 
+        # store body and subject as temporary files
         echo "$emailBody" > "/tmp/newsletter-send-$hash.body.txt"
         echo "$emailSubject" > "/tmp/newsletter-send-$hash.subject.txt"
 
@@ -133,9 +134,41 @@ send () {
         sendEmail \
             "Confirmation d'envoi" \
             "$response" \
-            -a "Message-Id: $sendID" -a "Reply-to: $nl+test@club1.fr"
+            -a "Message-Id: $sendID" -a "Reply-to: $nl+send-confirm@club1.fr"
     fi
 }
+
+sendConfirm () {
+    # get the In-Reply-To header
+    emailInReplyTo=$(echo "$mail" | grep -Eoi -m 1 "^In-Reply-To: .*" | grep -Eo "<.*>")
+
+    # retrieve hash from mail address ID
+    prefix="<$nl-"
+    suffix="@club1.fr>"
+    hash=${emailInReplyTo#"$prefix"}
+    hash=${foo%"$suffix"}
+
+    # abort if no matching files are found
+    if test ! -f "/tmp/newsletter-send-$hash.body.txt" || test ! -f "/tmp/newsletter-send-$hash.subject.txt"
+    then
+        exit 1
+    fi
+
+    subject=$(cat "/tmp/newsletter-send-$hash.subject.txt")
+
+    # lauch newsletter script
+    result=$({{PREFIX}}/bin/newsletter -y "$subject" "/tmp/newsletter-send-$hash.body.txt")
+
+    # delete temporary files
+    rm "/tmp/newsletter-send-$hash.body.txt"
+    rm "/tmp/newsletter-send-$hash.subject.txt"
+
+    sendEmail \
+        "La newsletter est partie 🏁" \
+        "$result"
+}
+
+
 
 # Default config path location
 configPath="$HOME/.config/newsletter"
@@ -224,6 +257,7 @@ case $subcmd in
     'unsubscribe') unsubscribe;;
     'confirm') confirm;;
     'send') send;;
+    'send-confirm') sendConfirm;;
     *) echo 'this sub-command does not exist'
     exit 2;;
 esac
