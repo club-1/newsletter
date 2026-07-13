@@ -1,5 +1,7 @@
 # CLUB1 Newsletter
 
+> ⚠️ This project is not used in production anymore, as it [has been rewritten](https://github.com/club-1/newsletter-go/) in Go language
+
 A very simple newsletter for CLUB1 server members.
 This was first only used for the club official newsletter and later extended as a service for members.
 
